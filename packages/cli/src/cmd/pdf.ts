@@ -88,6 +88,9 @@ function pdf(userSpecifiedRoot: string, output: string, options: any) {
       if (options.waitTimeout) {
         pdfOptions.waitTimeout = parseInt(options.waitTimeout, 10);
       }
+      if (options.browser) {
+        pdfOptions.executablePath = options.browser;
+      }
 
       const generator = new PdfGenerator(pdfOptions);
       const results = await generator.generate((msg: string) => logger.info(msg));
