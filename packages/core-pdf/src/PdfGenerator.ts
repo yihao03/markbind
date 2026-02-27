@@ -197,6 +197,12 @@ export class PdfGenerator {
 
       page = await browser.newPage();
 
+      // Set viewport to approximate A4 content width at 96dpi.
+      // A4 = 210mm wide. With 15mm left+right margins = 180mm content.
+      // 180mm ≈ 680px at 96dpi. We use a wider viewport so content
+      // renders at full width before page.pdf() reflows to A4.
+      await page.setViewport({ width: 1200, height: 800 });
+
       // Block all requests to external domains. The built site is fully
       // self-contained; external requests (CDN fonts, analytics, etc.)
       // would only slow things down or cause timeouts.
