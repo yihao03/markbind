@@ -261,6 +261,8 @@ export class PdfGenerator {
       const pdfOptions: any = {
         path: pdfOutputFile,
         format: this.options.format,
+        landscape: false,
+        preferCSSPageSize: false,
         margin: this.options.margin,
         printBackground: this.options.printBackground,
         timeout: 60000,
