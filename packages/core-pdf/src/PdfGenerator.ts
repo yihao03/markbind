@@ -1,9 +1,8 @@
 import path from 'path';
 import http from 'http';
 import fs from 'fs-extra';
-import type { Browser, Page } from 'puppeteer-core';
+import type { Browser, Page } from 'puppeteer';
 import { PdfOptions, PdfPageResult } from './types';
-import { findBrowserExecutable } from './browserFinder';
 
 const ASSETS_DIR = path.resolve(__dirname, '..', 'assets');
 const PDF_OVERRIDES_CSS_PATH = path.join(ASSETS_DIR, 'pdf-overrides.css');
@@ -83,15 +82,10 @@ export class PdfGenerator {
     const results: PdfPageResult[] = [];
 
     try {
-      // Find browser executable (user-specified, env var, or auto-detected)
-      const executablePath = this.options.executablePath || findBrowserExecutable();
-      log(`Using browser: ${executablePath}`);
-
-      // Launch browser via puppeteer-core
+      // Launch Puppeteer (uses its bundled Chromium by default)
       const puppeteer = await this.loadPuppeteer();
       const launchOptions: any = {
         headless: true,
-        executablePath,
         args: [
           '--no-sandbox',
           '--disable-setuid-sandbox',
@@ -99,6 +93,9 @@ export class PdfGenerator {
           '--disable-gpu',
         ],
       };
+      if (this.options.executablePath) {
+        launchOptions.executablePath = this.options.executablePath;
+      }
       browser = await puppeteer.launch(launchOptions);
 
       log('Browser launched.');
@@ -471,13 +468,13 @@ export class PdfGenerator {
   /**
    * Dynamically import puppeteer-core, with a helpful error message if not installed.
    */
-  private async loadPuppeteer(): Promise<typeof import('puppeteer-core')> {
+  private async loadPuppeteer(): Promise<typeof import('puppeteer')> {
     try {
-      return await import('puppeteer-core');
+      return await import('puppeteer');
     } catch {
       throw new Error(
-        'puppeteer-core is required for PDF generation but could not be loaded.\n'
-        + 'Install it with: npm install puppeteer-core\n'
+        'Puppeteer is required for PDF generation but could not be loaded.\n'
+        + 'Install it with: npm install puppeteer\n'
         + 'Or install @markbind/core-pdf which includes it as a dependency.',
       );
     }

@@ -84,7 +84,6 @@ program
   .option('--merge-filename <name>', 'filename for merged PDF (default: site.pdf)')
   .option('--pages <patterns>', 'comma-separated glob patterns of pages to include')
   .option('--wait-timeout <ms>', 'max time in ms to wait for dynamic content to load (default: 10000)')
-  .option('--browser <path>', 'path to Chrome/Chromium/Edge executable (auto-detected if not specified)')
   .description('build the site and export all pages as PDF files')
   .action((userSpecifiedRoot, output, options) => {
     pdf(userSpecifiedRoot, output, options);

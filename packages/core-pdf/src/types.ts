@@ -46,8 +46,7 @@ export interface PdfOptions {
   /** Maximum number of pages to render concurrently. Default: 3 */
   concurrency?: number;
 
-  /** Path to a Chrome, Chromium, or Edge executable.
-   *  If not set, the system browser is auto-detected.
+  /** Path to a Chrome/Chromium executable. Overrides Puppeteer's bundled browser.
    *  Can also be set via PUPPETEER_EXECUTABLE_PATH environment variable. */
   executablePath?: string;
 }
