@@ -438,23 +438,19 @@ export class PdfGenerator {
     navOrder.forEach((file, idx) => orderMap.set(file, idx));
 
     const inNav: PdfPageResult[] = [];
-    const notInNav: PdfPageResult[] = [];
 
     for (const result of results) {
       if (orderMap.has(result.htmlFile)) {
         inNav.push(result);
-      } else {
-        notInNav.push(result);
       }
     }
 
     inNav.sort((a, b) => orderMap.get(a.htmlFile)! - orderMap.get(b.htmlFile)!);
 
-    if (inNav.length > 0) {
-      log(`Merge order: using site-nav order (${inNav.length} pages from nav, ${notInNav.length} appended)`);
-    }
+    const skipped = results.length - inNav.length;
+    log(`Merge order: using site-nav order (${inNav.length} pages included, ${skipped} not in nav — skipped)`);
 
-    return [...inNav, ...notInNav];
+    return inNav;
   }
 
   /**
