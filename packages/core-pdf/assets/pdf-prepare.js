@@ -175,6 +175,7 @@ async function replaceIframes() {
     var iframe = iframes[i];
     var src = iframe.getAttribute('src') || '';
     var replacement = document.createElement('div');
+
     replacement.className = 'pdf-iframe-placeholder';
 
     // Try to read content from same-origin iframes that loaded
@@ -201,10 +202,6 @@ async function replaceIframes() {
         + (src ? '<br><span class="pdf-iframe-url">' + escapeHtml(src) + '</span>' : '')
         + '</div>';
     }
-
-    // Copy width/height so layout stays roughly the same
-    if (iframe.width) replacement.style.width = iframe.width + (isNaN(iframe.width) ? '' : 'px');
-    if (iframe.height) replacement.style.height = iframe.height + (isNaN(iframe.height) ? '' : 'px');
 
     iframe.parentNode.replaceChild(replacement, iframe);
   }

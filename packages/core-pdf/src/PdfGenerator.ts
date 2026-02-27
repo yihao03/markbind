@@ -226,27 +226,17 @@ export class PdfGenerator {
         // If Vue doesn't mount (e.g. static page without Vue), continue anyway
       });
 
-      // Collect PDF iframe references before preparation replaces them
-      const pdfIframes: { src: string; pageNum: number }[] = await page.evaluate(() => {
-        const results: { src: string; pageNum: number }[] = [];
-        document.querySelectorAll('iframe').forEach((iframe) => {
-          const src = iframe.getAttribute('src') || '';
-          const match = src.match(/\.pdf(?:#page=(\d+))?$/i);
-          if (match) {
-            results.push({
-              src: src.split('#')[0],
-              pageNum: match[1] ? parseInt(match[1], 10) : 1,
-            });
-          }
-        });
-        return results;
-      });
+      // Screenshot each iframe in-place and replace with an <img>.
+      // This captures whatever Chrome rendered (including PDF viewer content)
+      // without opening new tabs or navigating.
+      await this.screenshotIframes(page);
 
       // Inject PDF override CSS
       await page.addStyleTag({ content: this.overrideCss });
 
       // Execute the PDF preparation script to expand panels and wait for retrievers.
-      // This also replaces iframes with placeholders.
+      // This also replaces any remaining iframes (ones that failed screenshot)
+      // with styled placeholders.
       await page.evaluate(`
         ${this.prepareJs}
         preparePdfContent(${this.options.waitTimeout});
@@ -274,11 +264,6 @@ export class PdfGenerator {
 
       await page.pdf(pdfOptions);
 
-      // If the page had PDF iframes, append those PDF pages to the output
-      if (pdfIframes.length > 0) {
-        await this.appendPdfIframePages(pdfOutputFile, pdfIframes, log);
-      }
-
       log(`  OK: ${htmlFile} -> ${pdfFile}`);
       return { htmlFile, pdfFile: pdfOutputFile, success: true };
     } catch (err: any) {
@@ -293,59 +278,40 @@ export class PdfGenerator {
   }
 
   /**
-   * After generating a page PDF, append any PDF pages referenced by
-   * <iframe src="file.pdf#page=N"> elements. The referenced pages are
-   * extracted from the source PDFs and appended to the end of the
-   * generated page PDF.
+   * Screenshot each iframe element in-place and replace it with an <img>.
+   * This captures whatever Chrome rendered in the iframe (including the
+   * PDF viewer) without opening new browser tabs or navigating.
    */
-  private async appendPdfIframePages(
-    pdfOutputFile: string,
-    pdfIframes: { src: string; pageNum: number }[],
-    log: (msg: string) => void,
-  ): Promise<void> {
-    const { PDFDocument } = await import('pdf-lib');
-    const baseUrl = this.options.baseUrl.replace(/\/$/, '');
+  private async screenshotIframes(page: Page): Promise<void> {
+    const iframes = await page.$$('iframe');
+    if (iframes.length === 0) return;
 
-    // Load the generated page PDF
-    const pagePdfBytes = await fs.readFile(pdfOutputFile);
-    const pagePdf = await PDFDocument.load(
-      new Uint8Array(pagePdfBytes.buffer, pagePdfBytes.byteOffset, pagePdfBytes.byteLength),
-    );
+    // Give iframes a moment to render their content
+    await page.evaluate(() => new Promise(resolve => setTimeout(resolve, 1000)));
 
-    let appended = 0;
-
-    for (const iframe of pdfIframes) {
+    for (let i = 0; i < iframes.length; i++) {
       try {
-        // Resolve the PDF file path
-        let pdfPath = iframe.src;
-        if (baseUrl && pdfPath.startsWith(baseUrl)) {
-          pdfPath = pdfPath.slice(baseUrl.length);
-        }
-        pdfPath = pdfPath.replace(/^\//, '');
-        const fullPath = path.join(this.options.siteOutputPath, pdfPath);
+        const iframe = iframes[i];
+        const box = await iframe.boundingBox();
+        if (!box || box.width === 0 || box.height === 0) continue;
 
-        if (!await fs.pathExists(fullPath)) continue;
+        const screenshot = await iframe.screenshot({ encoding: 'base64', type: 'png' });
 
-        const srcBytes = await fs.readFile(fullPath);
-        const srcPdf = await PDFDocument.load(
-          new Uint8Array(srcBytes.buffer, srcBytes.byteOffset, srcBytes.byteLength),
-        );
-
-        const pageIndex = Math.max(0, iframe.pageNum - 1);
-        if (pageIndex >= srcPdf.getPageCount()) continue;
-
-        const [copiedPage] = await pagePdf.copyPages(srcPdf, [pageIndex]);
-        pagePdf.addPage(copiedPage);
-        appended++;
+        // Replace the iframe element with an img showing the screenshot
+        await page.evaluate((idx: number, dataUrl: string) => {
+          const el = document.querySelectorAll('iframe')[idx];
+          if (!el) return;
+          const img = document.createElement('img');
+          img.src = dataUrl;
+          img.style.maxWidth = '100%';
+          img.style.height = 'auto';
+          img.style.display = 'block';
+          el.parentNode!.replaceChild(img, el);
+        }, i, `data:image/png;base64,${screenshot}`);
       } catch {
-        // Skip iframes whose PDF can't be loaded
+        // If screenshot fails, leave the iframe for the browser-side
+        // replaceIframes() fallback to handle with a placeholder
       }
-    }
-
-    if (appended > 0) {
-      const mergedBytes = await pagePdf.save();
-      await fs.writeFile(pdfOutputFile, mergedBytes);
-      log(`    Appended ${appended} PDF iframe page(s)`);
     }
   }
 
