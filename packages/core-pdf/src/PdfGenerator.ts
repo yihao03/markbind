@@ -109,9 +109,14 @@ export class PdfGenerator {
         results.push(...batchResults);
       }
 
-      // Merge if requested
+      // Merge if requested, using site-nav order when available
       if (this.options.merge && results.some(r => r.success)) {
-        await this.mergePdfs(results.filter(r => r.success), log);
+        const successful = results.filter(r => r.success);
+        const navOrder = await this.extractNavOrder();
+        const ordered = navOrder.length > 0
+          ? this.sortByNavOrder(successful, navOrder, log)
+          : successful;
+        await this.mergePdfs(ordered, log);
       }
     } finally {
       if (browser) {
@@ -447,6 +452,88 @@ export class PdfGenerator {
     });
 
     return `data:image/png;base64,${screenshot}`;
+  }
+
+  /**
+   * Extract page order from the site-nav in the built HTML.
+   * Reads the first HTML file that contains a <nav id="site-nav"> and
+   * extracts all <a href="..."> links in document order. Returns an
+   * ordered list of relative HTML file paths.
+   */
+  private async extractNavOrder(): Promise<string[]> {
+    const htmlFiles = await this.discoverHtmlFiles();
+    const baseUrl = this.options.baseUrl.replace(/\/$/, '');
+
+    for (const file of htmlFiles) {
+      const fullPath = path.join(this.options.siteOutputPath, file);
+      const html = await fs.readFile(fullPath, 'utf-8');
+
+      // Look for the site-nav section
+      const navMatch = html.match(/<nav\s+id=["']site-nav["'][^>]*>([\s\S]*?)<\/nav>/i);
+      if (!navMatch) continue;
+
+      const navHtml = navMatch[1];
+
+      // Extract all href values from anchor tags in the nav
+      const hrefRegex = /href=["']([^"'#]+?)(?:#[^"']*)?["']/g;
+      const seen = new Set<string>();
+      const order: string[] = [];
+
+      let match;
+      while ((match = hrefRegex.exec(navHtml)) !== null) {
+        let href = match[1];
+        // Strip baseUrl prefix
+        if (baseUrl && href.startsWith(baseUrl)) {
+          href = href.slice(baseUrl.length);
+        }
+        // Remove leading slash and normalize
+        href = href.replace(/^\//, '');
+        // Convert directory paths to index.html
+        if (href === '' || href.endsWith('/')) {
+          href += 'index.html';
+        }
+        if (!href.endsWith('.html')) continue;
+        if (seen.has(href)) continue;
+        seen.add(href);
+        order.push(href);
+      }
+
+      if (order.length > 0) return order;
+    }
+
+    return [];
+  }
+
+  /**
+   * Sort PDF results according to the site-nav order.
+   * Pages not found in the nav are appended at the end in their original order.
+   */
+  private sortByNavOrder(
+    results: PdfPageResult[],
+    navOrder: string[],
+    log: (msg: string) => void,
+  ): PdfPageResult[] {
+    const orderMap = new Map<string, number>();
+    navOrder.forEach((file, idx) => orderMap.set(file, idx));
+
+    const inNav: PdfPageResult[] = [];
+    const notInNav: PdfPageResult[] = [];
+
+    for (const result of results) {
+      if (orderMap.has(result.htmlFile)) {
+        inNav.push(result);
+      } else {
+        notInNav.push(result);
+      }
+    }
+
+    inNav.sort((a, b) => orderMap.get(a.htmlFile)! - orderMap.get(b.htmlFile)!);
+
+    if (inNav.length > 0) {
+      log(`Merge order: using site-nav order (${inNav.length} pages from nav, ${notInNav.length} appended)`);
+    }
+
+    return [...inNav, ...notInNav];
   }
 
   /**
