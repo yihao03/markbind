@@ -1,9 +1,21 @@
 /*
- * PDF-specific CSS overrides for MarkBind pages.
- * Injected into pages before Puppeteer captures a PDF snapshot.
+ * PDF-specific CSS additions for MarkBind pages.
+ *
+ * MarkBind already provides comprehensive @media print styles and
+ * Bootstrap d-print-none utility classes that handle:
+ *   - Hiding navbar, scroll button, tab nav, copy buttons, site-nav, page-nav
+ *   - Showing printable tab panes with headers
+ *   - Code block wrapping (pre > code.hljs)
+ *   - no-page-break class
+ *
+ * Since Puppeteer's page.pdf() renders in print media, all those rules
+ * are automatically active. This file only adds styles that are specific
+ * to PDF export and NOT already covered by MarkBind's print CSS.
  */
 
 /* ===== Force all panels expanded and visible ===== */
+/* pdf-prepare.js clicks panels open, but transitions may not complete
+   before capture. Force the final expanded state. */
 .card-collapse {
   max-height: none !important;
   overflow: visible !important;
@@ -14,12 +26,14 @@
   display: block !important;
 }
 
-/* Remove the d-print-none that NestedPanel adds on collapsed card-body */
+/* NestedPanel adds d-print-none on card-body when collapsed.
+   Since pdf-prepare.js expands all panels, override this so
+   the body is visible in the PDF. */
 .card-body.d-print-none {
   display: block !important;
 }
 
-/* Remove peek fade-out effect */
+/* Remove peek fade-out gradient overlay */
 .card-peek-collapsed::after {
   display: none !important;
 }
@@ -29,41 +43,29 @@
   overflow: visible !important;
 }
 
-/* ===== Hide interactive / non-printable elements ===== */
+/* ===== Hide interactive elements not covered by d-print-none ===== */
+/* Navbar, scroll-top-button, tab nav, code copy buttons are already
+   hidden by MarkBind's d-print-none classes. These additional elements
+   are interactive-only and not handled by existing print styles. */
 .collapse-button,
 .close-button,
 .popup-button,
 .bottom-button-wrapper,
-.scroll-top-button,
 .searchbar,
 .search-btn,
 header[sticky],
-.navbar,
-#site-nav,
-#page-nav,
 .site-nav-btn-container {
   display: none !important;
 }
 
-/* ===== Tabs: show all tab panes, hide tab nav ===== */
-.nav.nav-tabs {
+/* ===== Minimized panels: hide the morph button ===== */
+/* pdf-prepare.js clicks these to expand, but hide the button itself */
+.morph {
   display: none !important;
 }
 
-.tab-content > .tab-pane {
-  display: block !important;
-  opacity: 1 !important;
-}
-
-/* Add a border around each printable tab for clarity */
-.printable-tabs {
-  border: 1px solid #dee2e6;
-  border-radius: 5px;
-  padding: 20px;
-  margin-bottom: 1rem;
-}
-
-/* ===== Layout: full-width content ===== */
+/* ===== Layout: full-width content for PDF ===== */
+/* Remove sidebar layout so content spans the full page width */
 #flex-body {
   display: block !important;
 }
@@ -75,47 +77,34 @@ header[sticky],
   margin: 0 !important;
 }
 
-/* ===== Code blocks: wrap properly ===== */
-pre > code.hljs {
-  white-space: pre-wrap !important;
-  word-wrap: break-word !important;
-  word-break: break-all !important;
-}
-
 /* ===== Page break controls ===== */
+/* Prevent headings from being orphaned at the bottom of a page */
 h1, h2, h3, h4, h5, h6 {
   page-break-after: avoid;
   break-after: avoid;
 }
 
+/* Keep tables, figures, and images together */
 table, figure, img {
   page-break-inside: avoid;
   break-inside: avoid;
 }
 
-.no-page-break {
-  page-break-inside: avoid !important;
-  break-inside: avoid !important;
-}
-
-/* ===== Minimized panels: force open ===== */
-.morph {
-  display: none !important;
-}
-
-/* ===== Remove transitions ===== */
+/* ===== Remove transitions for clean PDF capture ===== */
 * {
   transition: none !important;
   animation: none !important;
 }
 
-/* ===== Ensure images are constrained ===== */
+/* ===== Ensure images are constrained to page width ===== */
 img {
   max-width: 100% !important;
   height: auto !important;
 }
 
-/* ===== Iframe placeholders ===== */
+/* ===== Iframe placeholders (PDF-specific) ===== */
+/* Puppeteer's page.pdf() cannot capture iframe content, so
+   pdf-prepare.js replaces iframes with these styled placeholders. */
 .pdf-iframe-placeholder {
   border: 2px dashed #adb5bd;
   border-radius: 8px;
@@ -159,7 +148,7 @@ img {
   overflow: visible;
 }
 
-/* ===== Footer: keep but de-emphasize ===== */
+/* ===== Footer ===== */
 footer {
   margin-top: 2rem;
   border-top: 1px solid #dee2e6;

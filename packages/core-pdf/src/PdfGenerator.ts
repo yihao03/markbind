@@ -236,12 +236,16 @@ export class PdfGenerator {
       // in the preparation script below, which replaces them with
       // placeholders or inlines same-origin HTML content.
 
-      // Inject PDF override CSS
+      // Inject PDF-specific CSS additions.
+      // MarkBind's built-in @media print styles and d-print-none classes
+      // handle most print concerns (hiding navbar, tabs nav, scroll buttons,
+      // code wrapping, etc.). This CSS only adds PDF-specific extras like
+      // forcing panels open and full-width layout.
       await page.addStyleTag({ content: this.overrideCss });
 
       // Execute the PDF preparation script to expand panels and wait for retrievers.
-      // This also replaces any remaining iframes (ones that failed screenshot)
-      // with styled placeholders.
+      // This also replaces iframes with styled placeholders since page.pdf()
+      // cannot capture iframe content.
       await page.evaluate(`
         ${this.prepareJs}
         preparePdfContent(${this.options.waitTimeout});
