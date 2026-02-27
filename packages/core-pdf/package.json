@@ -1,0 +1,39 @@
+{
+  "name": "@markbind/core-pdf",
+  "version": "6.2.0",
+  "description": "MarkBind PDF export module",
+  "keywords": [
+    "markbind",
+    "pdf",
+    "export"
+  ],
+  "homepage": "https://markbind.org",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/",
+    "assets/"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MarkBind/markbind.git",
+    "directory": "packages/core-pdf"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsc --noEmitOnError"
+  },
+  "dependencies": {
+    "fs-extra": "^9.0.1",
+    "minimatch": "^9.0.0",
+    "pdf-lib": "^1.17.1",
+    "puppeteer": "^24.0.0"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^9.0.13",
+    "@types/node": "^18.15.0"
+  }
+}

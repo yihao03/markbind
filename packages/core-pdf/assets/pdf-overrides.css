@@ -1,0 +1,123 @@
+/*
+ * PDF-specific CSS overrides for MarkBind pages.
+ * Injected into pages before Puppeteer captures a PDF snapshot.
+ */
+
+/* ===== Force all panels expanded and visible ===== */
+.card-collapse {
+  max-height: none !important;
+  overflow: visible !important;
+  transition: none !important;
+}
+
+.card-body {
+  display: block !important;
+}
+
+/* Remove the d-print-none that NestedPanel adds on collapsed card-body */
+.card-body.d-print-none {
+  display: block !important;
+}
+
+/* Remove peek fade-out effect */
+.card-peek-collapsed::after {
+  display: none !important;
+}
+
+.card-peek-collapsed {
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+/* ===== Hide interactive / non-printable elements ===== */
+.collapse-button,
+.close-button,
+.popup-button,
+.bottom-button-wrapper,
+.scroll-top-button,
+.searchbar,
+.search-btn,
+header[sticky],
+.navbar,
+#site-nav,
+#page-nav,
+.site-nav-btn-container {
+  display: none !important;
+}
+
+/* ===== Tabs: show all tab panes, hide tab nav ===== */
+.nav.nav-tabs {
+  display: none !important;
+}
+
+.tab-content > .tab-pane {
+  display: block !important;
+  opacity: 1 !important;
+}
+
+/* Add a border around each printable tab for clarity */
+.printable-tabs {
+  border: 1px solid #dee2e6;
+  border-radius: 5px;
+  padding: 20px;
+  margin-bottom: 1rem;
+}
+
+/* ===== Layout: full-width content ===== */
+#flex-body {
+  display: block !important;
+}
+
+#content-wrapper {
+  max-width: 100% !important;
+  width: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* ===== Code blocks: wrap properly ===== */
+pre > code.hljs {
+  white-space: pre-wrap !important;
+  word-wrap: break-word !important;
+  word-break: break-all !important;
+}
+
+/* ===== Page break controls ===== */
+h1, h2, h3, h4, h5, h6 {
+  page-break-after: avoid;
+  break-after: avoid;
+}
+
+table, figure, img {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.no-page-break {
+  page-break-inside: avoid !important;
+  break-inside: avoid !important;
+}
+
+/* ===== Minimized panels: force open ===== */
+.morph {
+  display: none !important;
+}
+
+/* ===== Remove transitions ===== */
+* {
+  transition: none !important;
+  animation: none !important;
+}
+
+/* ===== Ensure images are constrained ===== */
+img {
+  max-width: 100% !important;
+  height: auto !important;
+}
+
+/* ===== Footer: keep but de-emphasize ===== */
+footer {
+  margin-top: 2rem;
+  border-top: 1px solid #dee2e6;
+  padding-top: 1rem;
+}

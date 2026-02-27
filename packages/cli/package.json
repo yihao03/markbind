@@ -44,13 +44,12 @@
     "fs-extra": "^9.0.1",
     "live-server": "1.2.1",
     "lodash": "^4.17.15",
-    "pdf-lib": "^1.17.1",
     "url-parse": "^1.5.10",
     "winston": "^2.4.4",
     "winston-daily-rotate-file": "^3.10.0"
   },
   "optionalDependencies": {
-    "puppeteer": "^24.0.0"
+    "@markbind/core-pdf": "6.2.0"
   },
   "devDependencies": {
     "@types/jest": "^29.4.6",

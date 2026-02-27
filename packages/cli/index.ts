@@ -6,6 +6,7 @@ import * as logger from './src/util/logger';
 import { build } from './src/cmd/build';
 import { deploy } from './src/cmd/deploy';
 import { init } from './src/cmd/init';
+import { pdf } from './src/cmd/pdf';
 import { serve } from './src/cmd/serve';
 import { version as CLI_VERSION } from './package.json';
 
@@ -70,6 +71,22 @@ program
   .description('build a website')
   .action((userSpecifiedRoot, output, options) => {
     build(userSpecifiedRoot, output, options);
+  });
+
+program
+  .command('pdf [root] [output]')
+  .alias('p')
+  .option('--baseUrl [baseUrl]',
+          'optional flag which overrides baseUrl in site.json, leave argument empty for empty baseUrl')
+  .option('-s, --site-config <file>', 'specify the site config file (default: site.json)')
+  .option('-f, --format <format>', 'paper format: A4, Letter, Legal, Tabloid (default: A4)')
+  .option('-m, --merge', 'merge all pages into a single PDF')
+  .option('--merge-filename <name>', 'filename for merged PDF (default: site.pdf)')
+  .option('--pages <patterns>', 'comma-separated glob patterns of pages to include')
+  .option('--wait-timeout <ms>', 'max time in ms to wait for dynamic content to load (default: 10000)')
+  .description('build the site and export all pages as PDF files')
+  .action((userSpecifiedRoot, output, options) => {
+    pdf(userSpecifiedRoot, output, options);
   });
 
 program
