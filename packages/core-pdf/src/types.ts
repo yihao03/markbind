@@ -58,6 +58,12 @@ export interface PdfPageResult {
   /** Output PDF file path */
   pdfFile: string;
 
+  /** Page title extracted from the HTML <title> tag */
+  title: string;
+
+  /** Number of pages in the generated PDF */
+  pageCount: number;
+
   /** Whether generation succeeded */
   success: boolean;
 

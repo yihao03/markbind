@@ -275,12 +275,21 @@ export class PdfGenerator {
 
       await page.pdf(pdfOptions);
 
-      log(`  OK: ${htmlFile} -> ${pdfFile}`);
-      return { htmlFile, pdfFile: pdfOutputFile, success: true };
+      // Extract page title for PDF bookmarks
+      const title = await page.title() || htmlFile.replace(/\.html$/, '');
+
+      // Count pages in the generated PDF for bookmark offsets
+      const { PDFDocument: PDFDoc } = await import('pdf-lib');
+      const pdfBuf = await fs.readFile(pdfOutputFile);
+      const pdfDoc = await PDFDoc.load(new Uint8Array(pdfBuf.buffer, pdfBuf.byteOffset, pdfBuf.byteLength));
+      const pageCount = pdfDoc.getPageCount();
+
+      log(`  OK: ${htmlFile} -> ${pdfFile} (${pageCount} page(s))`);
+      return { htmlFile, pdfFile: pdfOutputFile, title, pageCount, success: true };
     } catch (err: any) {
       const errorMsg = err.message || String(err);
       log(`  FAIL: ${htmlFile} - ${errorMsg}`);
-      return { htmlFile, pdfFile: pdfOutputFile, success: false, error: errorMsg };
+      return { htmlFile, pdfFile: pdfOutputFile, title: htmlFile, pageCount: 0, success: false, error: errorMsg };
     } finally {
       if (page) {
         await page.close();
@@ -367,23 +376,102 @@ export class PdfGenerator {
   }
 
   /**
-   * Merge multiple PDFs into a single file using pdf-lib.
+   * Merge multiple PDFs into a single file using pdf-lib,
+   * with a PDF outline (bookmarks) so viewers show a clickable TOC sidebar.
    */
   private async mergePdfs(results: PdfPageResult[], log: (msg: string) => void): Promise<void> {
-    const { PDFDocument } = await import('pdf-lib');
+    const { PDFDocument, PDFDict, PDFName, PDFArray, PDFString, PDFNull, PDFNumber }
+      = await import('pdf-lib');
     const merged = await PDFDocument.create();
 
+    // Track the first page index of each source document in the merged PDF
+    const bookmarks: { title: string; pageIndex: number }[] = [];
+    let currentPageIndex = 0;
+
     for (const result of results) {
+      bookmarks.push({ title: result.title, pageIndex: currentPageIndex });
       const buf = await fs.readFile(result.pdfFile);
       const pdf = await PDFDocument.load(new Uint8Array(buf.buffer, buf.byteOffset, buf.byteLength));
       const pages = await merged.copyPages(pdf, pdf.getPageIndices());
       pages.forEach(p => merged.addPage(p));
+      currentPageIndex += pages.length;
+    }
+
+    // Build the PDF outline (bookmark tree) so viewers show a TOC sidebar
+    if (bookmarks.length > 0) {
+      this.addOutline(merged, bookmarks, { PDFDict, PDFName, PDFArray, PDFString, PDFNull, PDFNumber });
+      log(`Added ${bookmarks.length} bookmark(s) to merged PDF.`);
     }
 
     const mergedPath = path.join(this.options.pdfOutputPath, this.options.mergeFilename);
     const mergedBytes = await merged.save();
     await fs.writeFile(mergedPath, mergedBytes);
     log(`Merged PDF written to ${mergedPath}`);
+  }
+
+  /**
+   * Add a PDF outline (bookmarks/TOC) to a PDFDocument using low-level pdf-lib API.
+   * Each bookmark points to the first page of a source document.
+   */
+  private addOutline(
+    doc: any,
+    bookmarks: { title: string; pageIndex: number }[],
+    pdfLib: { PDFDict: any; PDFName: any; PDFArray: any; PDFString: any; PDFNull: any; PDFNumber: any },
+  ): void {
+    const { PDFDict, PDFName, PDFArray, PDFString, PDFNull } = pdfLib;
+    const context = doc.context;
+    const pages = doc.getPages();
+
+    // Create outline item refs first so we can link Prev/Next
+    const outlineItemRefs: any[] = [];
+    const outlineItems: any[] = [];
+
+    for (let i = 0; i < bookmarks.length; i++) {
+      const ref = context.nextRef();
+      outlineItemRefs.push(ref);
+      outlineItems.push(bookmarks[i]);
+    }
+
+    // Create the root /Outlines dictionary
+    const outlinesDict = context.obj({
+      Type: 'Outlines',
+      First: outlineItemRefs[0],
+      Last: outlineItemRefs[outlineItemRefs.length - 1],
+      Count: bookmarks.length,
+    });
+    const outlinesRef = context.register(outlinesDict);
+
+    // Create each outline item
+    for (let i = 0; i < bookmarks.length; i++) {
+      const { title, pageIndex } = bookmarks[i];
+      const targetPage = pages[pageIndex];
+
+      // Destination: [pageRef /XYZ null null null] — top of the page
+      const dest = PDFArray.withContext(context);
+      dest.push(targetPage.ref);
+      dest.push(PDFName.of('XYZ'));
+      dest.push(PDFNull);
+      dest.push(PDFNull);
+      dest.push(PDFNull);
+
+      const map = new Map();
+      map.set(PDFName.of('Title'), PDFString.of(title));
+      map.set(PDFName.of('Parent'), outlinesRef);
+      map.set(PDFName.of('Dest'), dest);
+
+      if (i > 0) {
+        map.set(PDFName.of('Prev'), outlineItemRefs[i - 1]);
+      }
+      if (i < bookmarks.length - 1) {
+        map.set(PDFName.of('Next'), outlineItemRefs[i + 1]);
+      }
+
+      const itemDict = PDFDict.fromMapWithContext(map, context);
+      context.assign(outlineItemRefs[i], itemDict);
+    }
+
+    // Set /Outlines on the document catalog
+    doc.catalog.set(PDFName.of('Outlines'), outlinesRef);
   }
 
   /**
