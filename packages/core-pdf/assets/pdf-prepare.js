@@ -107,13 +107,20 @@ async function preparePdfContent(waitTimeout) {
   });
 
   // ------------------------------------------------------------------
-  // 7. Trigger the beforeprint event so that page-nav-print containers
+  // 7. Replace iframes with inline content or placeholders.
+  //    Puppeteer's page.pdf() does not capture iframe frame content,
+  //    so we need to either inline the content or show a placeholder.
+  // ------------------------------------------------------------------
+  await replaceIframes();
+
+  // ------------------------------------------------------------------
+  // 8. Trigger the beforeprint event so that page-nav-print containers
   //    get populated (from print.js).
   // ------------------------------------------------------------------
   window.dispatchEvent(new Event('beforeprint'));
 
   // ------------------------------------------------------------------
-  // 8. Small final settle time for any remaining DOM updates.
+  // 9. Small final settle time for any remaining DOM updates.
   // ------------------------------------------------------------------
   await sleep(200);
 }
@@ -153,6 +160,78 @@ function waitForRetrievers(timeout) {
     var RETRIEVER_POLL_INTERVAL = 200;
     check();
   });
+}
+
+/**
+ * Replace all <iframe> elements with either their inlined content (for same-origin
+ * iframes that loaded successfully) or a styled placeholder showing the URL.
+ *
+ * Puppeteer's page.pdf() does not render iframe frame content, so without this
+ * step all iframes appear blank in the generated PDF.
+ */
+async function replaceIframes() {
+  var iframes = document.querySelectorAll('iframe');
+  for (var i = 0; i < iframes.length; i++) {
+    var iframe = iframes[i];
+    var src = iframe.getAttribute('src') || '';
+    var replacement = document.createElement('div');
+    replacement.className = 'pdf-iframe-placeholder';
+
+    // Try to read content from same-origin iframes that loaded
+    var inlined = false;
+    try {
+      var doc = iframe.contentDocument || (iframe.contentWindow && iframe.contentWindow.document);
+      if (doc && doc.body && doc.body.innerHTML.trim().length > 0) {
+        // Same-origin iframe with content - inline it
+        replacement.innerHTML = doc.body.innerHTML;
+        replacement.className = 'pdf-iframe-inlined';
+        inlined = true;
+      }
+    } catch (e) {
+      // Cross-origin or blocked - fall through to placeholder
+    }
+
+    if (!inlined) {
+      // Determine a user-friendly label for the iframe source
+      var label = getIframeLabel(src);
+      replacement.innerHTML =
+        '<div class="pdf-iframe-placeholder-inner">'
+        + '<span class="pdf-iframe-icon">&#x1f517;</span> '
+        + '<span class="pdf-iframe-label">' + escapeHtml(label) + '</span>'
+        + (src ? '<br><span class="pdf-iframe-url">' + escapeHtml(src) + '</span>' : '')
+        + '</div>';
+    }
+
+    // Copy width/height so layout stays roughly the same
+    if (iframe.width) replacement.style.width = iframe.width + (isNaN(iframe.width) ? '' : 'px');
+    if (iframe.height) replacement.style.height = iframe.height + (isNaN(iframe.height) ? '' : 'px');
+
+    iframe.parentNode.replaceChild(replacement, iframe);
+  }
+}
+
+/**
+ * Produce a human-readable label for an iframe src.
+ */
+function getIframeLabel(src) {
+  if (!src) return 'Embedded content';
+  var lower = src.toLowerCase();
+  if (lower.indexOf('youtube.com') !== -1 || lower.indexOf('youtu.be') !== -1) return 'YouTube Video';
+  if (lower.indexOf('vimeo.com') !== -1) return 'Vimeo Video';
+  if (lower.indexOf('dailymotion.com') !== -1) return 'Dailymotion Video';
+  if (lower.indexOf('onedrive.live.com') !== -1 || lower.indexOf('powerpoint') !== -1) return 'PowerPoint Presentation';
+  if (lower.indexOf('docs.google.com/presentation') !== -1) return 'Google Slides Presentation';
+  if (lower.indexOf('docs.google.com/spreadsheets') !== -1) return 'Google Sheets Spreadsheet';
+  if (lower.indexOf('docs.google.com/document') !== -1) return 'Google Document';
+  if (lower.indexOf('.pdf') !== -1) return 'PDF Document';
+  if (lower.indexOf('reposense') !== -1) return 'RepoSense Report';
+  return 'Embedded content';
+}
+
+function escapeHtml(text) {
+  var div = document.createElement('div');
+  div.appendChild(document.createTextNode(text));
+  return div.innerHTML;
 }
 
 function sleep(ms) {

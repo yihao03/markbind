@@ -221,10 +221,17 @@ export class PdfGenerator {
         // If Vue doesn't mount (e.g. static page without Vue), continue anyway
       });
 
+      // Capture and replace iframe contents before applying CSS overrides.
+      // Puppeteer's page.pdf() does not render child frame content, so we
+      // screenshot each iframe region and replace the element with an <img>.
+      await this.captureIframes(page);
+
       // Inject PDF override CSS
       await page.addStyleTag({ content: this.overrideCss });
 
-      // Execute the PDF preparation script to expand panels and wait for retrievers
+      // Execute the PDF preparation script to expand panels and wait for retrievers.
+      // This also replaces any remaining iframes that weren't captured above
+      // (e.g. external iframes that were blocked) with styled placeholders.
       await page.evaluate(`
         ${this.prepareJs}
         preparePdfContent(${this.options.waitTimeout});
@@ -263,6 +270,183 @@ export class PdfGenerator {
         await page.close();
       }
     }
+  }
+
+  /**
+   * Capture iframe contents by taking screenshots and replacing the iframe
+   * elements with <img> tags. For PDF iframes with #page=N fragments, only
+   * the specified page is rendered.
+   */
+  private async captureIframes(page: Page): Promise<void> {
+    // Collect iframe info from the DOM
+    const iframeInfos: { index: number; src: string; width: number; height: number }[] =
+      await page.evaluate(() => {
+        const iframes = document.querySelectorAll('iframe');
+        return Array.from(iframes).map((iframe, index) => ({
+          index,
+          src: iframe.getAttribute('src') || '',
+          width: iframe.getBoundingClientRect().width || iframe.clientWidth || 800,
+          height: iframe.getBoundingClientRect().height || iframe.clientHeight || 600,
+        }));
+      });
+
+    if (iframeInfos.length === 0) return;
+
+    const browser = page.browser();
+
+    for (const info of iframeInfos) {
+      if (!info.src) continue;
+
+      try {
+        let screenshotBase64: string | undefined;
+
+        // Check if this is a PDF iframe
+        const pdfMatch = info.src.match(/\.pdf(?:#page=(\d+))?$/i);
+        if (pdfMatch) {
+          screenshotBase64 = await this.capturePdfIframe(
+            browser, page, info.src, pdfMatch[1] ? parseInt(pdfMatch[1], 10) : 1,
+            info.width, info.height,
+          );
+        } else {
+          // For non-PDF local iframes, try to screenshot the child frame
+          screenshotBase64 = await this.captureHtmlIframe(page, info.index, info.width, info.height);
+        }
+
+        if (screenshotBase64) {
+          // Replace the iframe with an img showing the screenshot
+          await page.evaluate((idx: number, dataUrl: string) => {
+            const iframes = document.querySelectorAll('iframe');
+            const iframe = iframes[idx];
+            if (!iframe) return;
+            const img = document.createElement('img');
+            img.src = dataUrl;
+            img.style.maxWidth = '100%';
+            img.style.height = 'auto';
+            img.style.display = 'block';
+            img.style.margin = '1rem 0';
+            img.className = 'pdf-iframe-captured';
+            iframe.parentNode!.replaceChild(img, iframe);
+          }, info.index, screenshotBase64);
+        }
+      } catch {
+        // If capture fails, leave the iframe for the browser-side
+        // replaceIframes() to handle with a placeholder
+      }
+    }
+  }
+
+  /**
+   * Capture a specific page from a PDF file as a screenshot.
+   * Uses pdf-lib to extract the target page, then renders it in Chrome.
+   */
+  private async capturePdfIframe(
+    browser: Browser,
+    _parentPage: Page,
+    src: string,
+    pageNum: number,
+    viewportWidth: number,
+    viewportHeight: number,
+  ): Promise<string | undefined> {
+    const { PDFDocument } = await import('pdf-lib');
+
+    // Resolve the PDF file path from the site output directory
+    let pdfPath = src.split('#')[0];
+    // Strip baseUrl if present
+    const baseUrl = this.options.baseUrl.replace(/\/$/, '');
+    if (baseUrl && pdfPath.startsWith(baseUrl)) {
+      pdfPath = pdfPath.slice(baseUrl.length);
+    }
+    // Remove leading slash
+    pdfPath = pdfPath.replace(/^\//, '');
+    const fullPath = path.join(this.options.siteOutputPath, pdfPath);
+
+    if (!await fs.pathExists(fullPath)) return undefined;
+
+    // Load the PDF and extract just the requested page
+    const pdfBytes = await fs.readFile(fullPath);
+    const sourcePdf = await PDFDocument.load(
+      new Uint8Array(pdfBytes.buffer, pdfBytes.byteOffset, pdfBytes.byteLength),
+    );
+
+    const pageIndex = Math.max(0, pageNum - 1); // Convert 1-based to 0-based
+    if (pageIndex >= sourcePdf.getPageCount()) return undefined;
+
+    const singlePagePdf = await PDFDocument.create();
+    const [copiedPage] = await singlePagePdf.copyPages(sourcePdf, [pageIndex]);
+    singlePagePdf.addPage(copiedPage);
+    const singlePageBytes = await singlePagePdf.save();
+
+    // Encode as data URL and open in a new tab for screenshot
+    const base64Pdf = Buffer.from(singlePageBytes).toString('base64');
+    const dataUrl = `data:application/pdf;base64,${base64Pdf}`;
+
+    const pdfPage = await browser.newPage();
+    try {
+      await pdfPage.setViewport({
+        width: Math.round(viewportWidth) || 800,
+        height: Math.round(viewportHeight) || 600,
+      });
+      await pdfPage.goto(dataUrl, { waitUntil: 'networkidle0', timeout: 15000 });
+      // Wait for Chrome's PDF viewer to render
+      await pdfPage.evaluate(() => new Promise(resolve => setTimeout(resolve, 1000)));
+
+      const screenshot = await pdfPage.screenshot({
+        encoding: 'base64',
+        type: 'png',
+      });
+      return `data:image/png;base64,${screenshot}`;
+    } finally {
+      await pdfPage.close();
+    }
+  }
+
+  /**
+   * Try to screenshot a non-PDF child frame by finding the matching
+   * frame in Puppeteer's page.frames() list.
+   */
+  private async captureHtmlIframe(
+    page: Page,
+    iframeIndex: number,
+    _viewportWidth: number,
+    _viewportHeight: number,
+  ): Promise<string | undefined> {
+    // Get the iframe element handle
+    const iframeHandle = await page.evaluateHandle((idx: number) => {
+      return document.querySelectorAll('iframe')[idx];
+    }, iframeIndex);
+
+    if (!iframeHandle) return undefined;
+
+    const elementHandle = iframeHandle.asElement();
+    if (!elementHandle) return undefined;
+
+    // Try to get the content frame
+    const frame = await (elementHandle as any).contentFrame();
+    if (!frame) return undefined;
+
+    // Check if the frame has any content
+    const hasContent = await frame.evaluate(() => {
+      return document.body && document.body.innerHTML.trim().length > 0;
+    }).catch(() => false);
+
+    if (!hasContent) return undefined;
+
+    // Screenshot the iframe element's bounding box area
+    const box = await elementHandle.boundingBox();
+    if (!box || box.width === 0 || box.height === 0) return undefined;
+
+    const screenshot = await page.screenshot({
+      encoding: 'base64',
+      type: 'png',
+      clip: {
+        x: box.x,
+        y: box.y,
+        width: box.width,
+        height: box.height,
+      },
+    });
+
+    return `data:image/png;base64,${screenshot}`;
   }
 
   /**
@@ -335,6 +519,7 @@ export class PdfGenerator {
           '.ttf': 'font/ttf',
           '.eot': 'application/vnd.ms-fontobject',
           '.otf': 'font/otf',
+          '.pdf': 'application/pdf',
           '.map': 'application/json',
         };
 

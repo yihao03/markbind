@@ -115,6 +115,50 @@ img {
   height: auto !important;
 }
 
+/* ===== Iframe placeholders ===== */
+.pdf-iframe-placeholder {
+  border: 2px dashed #adb5bd;
+  border-radius: 8px;
+  background: #f8f9fa;
+  padding: 24px;
+  margin: 1rem 0;
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.pdf-iframe-placeholder-inner {
+  text-align: center;
+  color: #495057;
+}
+
+.pdf-iframe-icon {
+  font-size: 1.5em;
+}
+
+.pdf-iframe-label {
+  font-size: 1.1em;
+  font-weight: 600;
+  color: #212529;
+}
+
+.pdf-iframe-url {
+  font-size: 0.8em;
+  color: #6c757d;
+  word-break: break-all;
+}
+
+.pdf-iframe-inlined {
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  padding: 16px;
+  margin: 1rem 0;
+  overflow: visible;
+}
+
 /* ===== Footer: keep but de-emphasize ===== */
 footer {
   margin-top: 2rem;
