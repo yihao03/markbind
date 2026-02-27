@@ -226,10 +226,9 @@ export class PdfGenerator {
         // If Vue doesn't mount (e.g. static page without Vue), continue anyway
       });
 
-      // Screenshot each iframe and replace with an inline <img>.
-      // PDF iframes are rendered in a separate tab (headless Chrome doesn't
-      // render PDFs inside iframes); HTML iframes are screenshotted in-place.
-      await this.screenshotIframes(page, port);
+      // Note: iframes are handled by the browser-side replaceIframes()
+      // in the preparation script below, which replaces them with
+      // placeholders or inlines same-origin HTML content.
 
       // Inject PDF override CSS
       await page.addStyleTag({ content: this.overrideCss });
@@ -273,104 +272,6 @@ export class PdfGenerator {
     } finally {
       if (page) {
         await page.close();
-      }
-    }
-  }
-
-  /**
-   * Screenshot each iframe and replace it with an inline <img>.
-   *
-   * For PDF iframes: headless Chrome doesn't render PDFs inside iframes,
-   * so we open the PDF URL in a separate tab via our local server,
-   * screenshot it there, then inject the image back into the main page.
-   *
-   * For HTML iframes: use elementHandle.screenshot() in-place.
-   */
-  private async screenshotIframes(page: Page, port: number): Promise<void> {
-    const iframeData: { src: string; width: number; height: number }[] =
-      await page.evaluate(() => {
-        return Array.from(document.querySelectorAll('iframe')).map((iframe) => ({
-          src: iframe.getAttribute('src') || '',
-          width: iframe.getBoundingClientRect().width || iframe.clientWidth || 800,
-          height: iframe.getBoundingClientRect().height || iframe.clientHeight || 400,
-        }));
-      });
-
-    if (iframeData.length === 0) return;
-
-    // Give iframes a moment to render
-    await page.evaluate(() => new Promise(resolve => setTimeout(resolve, 500)));
-
-    const browser = page.browser();
-    const baseUrl = this.options.baseUrl.replace(/\/$/, '');
-    const localOrigin = `http://127.0.0.1:${port}`;
-
-    for (let i = 0; i < iframeData.length; i++) {
-      const info = iframeData[i];
-      if (!info.src) continue;
-
-      try {
-        let screenshotBase64: string | undefined;
-        const isPdf = /\.pdf([#?]|$)/i.test(info.src);
-
-        if (isPdf) {
-          // PDF iframes: open in a new tab and screenshot.
-          // Resolve src to a local server URL.
-          let pdfUrl = info.src;
-          if (!pdfUrl.startsWith('http')) {
-            // Relative URL — resolve against local server + baseUrl
-            pdfUrl = `${localOrigin}${baseUrl}/${pdfUrl.replace(/^\//, '')}`;
-          }
-
-          const pdfPage = await browser.newPage();
-          try {
-            await pdfPage.setViewport({
-              width: Math.round(info.width) || 800,
-              height: Math.round(info.height) || 600,
-            });
-            // Use 'load' + short timeout — avoids the networkidle0 hang
-            await pdfPage.goto(pdfUrl, { waitUntil: 'load', timeout: 8000 });
-            // Give Chrome's PDF viewer time to paint
-            await pdfPage.evaluate(() => new Promise(r => setTimeout(r, 2000)));
-
-            screenshotBase64 = await pdfPage.screenshot({
-              encoding: 'base64',
-              type: 'png',
-            }) as string;
-          } finally {
-            await pdfPage.close();
-          }
-        } else {
-          // Non-PDF iframe: screenshot element in-place
-          const handles = await page.$$('iframe');
-          const handle = handles[i];
-          if (handle) {
-            const box = await handle.boundingBox();
-            if (box && box.width > 0 && box.height > 0) {
-              screenshotBase64 = await handle.screenshot({
-                encoding: 'base64',
-                type: 'png',
-              }) as string;
-            }
-          }
-        }
-
-        if (screenshotBase64) {
-          // Replace the iframe with an inline <img>
-          await page.evaluate((idx: number, dataUrl: string) => {
-            const el = document.querySelectorAll('iframe')[idx];
-            if (!el) return;
-            const img = document.createElement('img');
-            img.src = dataUrl;
-            img.style.maxWidth = '100%';
-            img.style.height = 'auto';
-            img.style.display = 'block';
-            el.parentNode!.replaceChild(img, el);
-          }, i, `data:image/png;base64,${screenshotBase64}`);
-        }
-      } catch {
-        // If capture fails for any reason (timeout, etc.), leave the iframe
-        // for the browser-side replaceIframes() to handle with a placeholder
       }
     }
   }
