@@ -226,12 +226,27 @@ export class PdfGenerator {
         // If Vue doesn't mount (e.g. static page without Vue), continue anyway
       });
 
+      // Collect PDF iframe references before preparation replaces them
+      const pdfIframes: { src: string; pageNum: number }[] = await page.evaluate(() => {
+        const results: { src: string; pageNum: number }[] = [];
+        document.querySelectorAll('iframe').forEach((iframe) => {
+          const src = iframe.getAttribute('src') || '';
+          const match = src.match(/\.pdf(?:#page=(\d+))?$/i);
+          if (match) {
+            results.push({
+              src: src.split('#')[0],
+              pageNum: match[1] ? parseInt(match[1], 10) : 1,
+            });
+          }
+        });
+        return results;
+      });
+
       // Inject PDF override CSS
       await page.addStyleTag({ content: this.overrideCss });
 
       // Execute the PDF preparation script to expand panels and wait for retrievers.
-      // This also replaces any remaining iframes that weren't captured above
-      // (e.g. external iframes that were blocked) with styled placeholders.
+      // This also replaces iframes with placeholders.
       await page.evaluate(`
         ${this.prepareJs}
         preparePdfContent(${this.options.waitTimeout});
@@ -259,6 +274,11 @@ export class PdfGenerator {
 
       await page.pdf(pdfOptions);
 
+      // If the page had PDF iframes, append those PDF pages to the output
+      if (pdfIframes.length > 0) {
+        await this.appendPdfIframePages(pdfOutputFile, pdfIframes, log);
+      }
+
       log(`  OK: ${htmlFile} -> ${pdfFile}`);
       return { htmlFile, pdfFile: pdfOutputFile, success: true };
     } catch (err: any) {
@@ -269,6 +289,63 @@ export class PdfGenerator {
       if (page) {
         await page.close();
       }
+    }
+  }
+
+  /**
+   * After generating a page PDF, append any PDF pages referenced by
+   * <iframe src="file.pdf#page=N"> elements. The referenced pages are
+   * extracted from the source PDFs and appended to the end of the
+   * generated page PDF.
+   */
+  private async appendPdfIframePages(
+    pdfOutputFile: string,
+    pdfIframes: { src: string; pageNum: number }[],
+    log: (msg: string) => void,
+  ): Promise<void> {
+    const { PDFDocument } = await import('pdf-lib');
+    const baseUrl = this.options.baseUrl.replace(/\/$/, '');
+
+    // Load the generated page PDF
+    const pagePdfBytes = await fs.readFile(pdfOutputFile);
+    const pagePdf = await PDFDocument.load(
+      new Uint8Array(pagePdfBytes.buffer, pagePdfBytes.byteOffset, pagePdfBytes.byteLength),
+    );
+
+    let appended = 0;
+
+    for (const iframe of pdfIframes) {
+      try {
+        // Resolve the PDF file path
+        let pdfPath = iframe.src;
+        if (baseUrl && pdfPath.startsWith(baseUrl)) {
+          pdfPath = pdfPath.slice(baseUrl.length);
+        }
+        pdfPath = pdfPath.replace(/^\//, '');
+        const fullPath = path.join(this.options.siteOutputPath, pdfPath);
+
+        if (!await fs.pathExists(fullPath)) continue;
+
+        const srcBytes = await fs.readFile(fullPath);
+        const srcPdf = await PDFDocument.load(
+          new Uint8Array(srcBytes.buffer, srcBytes.byteOffset, srcBytes.byteLength),
+        );
+
+        const pageIndex = Math.max(0, iframe.pageNum - 1);
+        if (pageIndex >= srcPdf.getPageCount()) continue;
+
+        const [copiedPage] = await pagePdf.copyPages(srcPdf, [pageIndex]);
+        pagePdf.addPage(copiedPage);
+        appended++;
+      } catch {
+        // Skip iframes whose PDF can't be loaded
+      }
+    }
+
+    if (appended > 0) {
+      const mergedBytes = await pagePdf.save();
+      await fs.writeFile(pdfOutputFile, mergedBytes);
+      log(`    Appended ${appended} PDF iframe page(s)`);
     }
   }
 
