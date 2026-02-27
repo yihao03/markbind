@@ -24,14 +24,6 @@ const WINDOWS_CHROME_PATHS = [
   'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
 ];
 
-// Windows paths accessible from WSL via /mnt/c/
-const WSL_WINDOWS_PATHS = [
-  '/mnt/c/Program Files/Google/Chrome/Application/chrome.exe',
-  '/mnt/c/Program Files (x86)/Google/Chrome/Application/chrome.exe',
-  '/mnt/c/Program Files/Microsoft/Edge/Application/msedge.exe',
-  '/mnt/c/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',
-];
-
 function isWSL(): boolean {
   try {
     const version = fs.readFileSync('/proc/version', 'utf-8');
@@ -62,8 +54,12 @@ function tryWhere(name: string): string | null {
 
 /**
  * Find a Chrome, Chromium, or Edge executable on the system.
- * Checks standard install locations for the current platform,
- * including Windows browsers accessible from WSL via /mnt/c/.
+ * Checks standard install locations for the current platform.
+ *
+ * Note: On WSL, only Linux-native browsers are auto-detected.
+ * Windows browsers (via /mnt/c/) don't work reliably with Puppeteer
+ * due to pipe communication issues across the WSL boundary.
+ * Users on WSL should install Chromium inside WSL.
  *
  * @returns Absolute path to the browser executable
  * @throws Error with platform-specific install instructions if no browser is found
@@ -74,9 +70,9 @@ export function findBrowserExecutable(): string {
 
   if (platform === 'linux') {
     candidates.push(...LINUX_CHROME_PATHS);
-    if (isWSL()) {
-      candidates.push(...WSL_WINDOWS_PATHS);
-    }
+    // Note: WSL Windows paths (/mnt/c/...) are intentionally excluded
+    // from auto-detection because Puppeteer cannot reliably launch
+    // Windows executables from WSL (pipe/socket communication fails).
   } else if (platform === 'darwin') {
     candidates.push(...MACOS_CHROME_PATHS);
   } else if (platform === 'win32') {
@@ -104,38 +100,44 @@ export function findBrowserExecutable(): string {
   }
 
   // Nothing found — throw with helpful instructions
-  const instructions = getInstallInstructions(platform, isWSL());
+  const wsl = isWSL();
+  const instructions = getInstallInstructions(platform, wsl);
   throw new Error(
     'No Chrome, Chromium, or Edge browser found on your system.\n'
     + 'PDF generation requires a Chromium-based browser.\n\n'
-    + instructions + '\n\n'
-    + 'Alternatively, specify a browser path:\n'
-    + '  markbind pdf --browser /path/to/chrome\n'
-    + '  # or set PUPPETEER_EXECUTABLE_PATH=/path/to/chrome',
+    + instructions,
   );
 }
 
 function getInstallInstructions(platform: string, wsl: boolean): string {
   if (wsl) {
-    return 'You are running in WSL. Install Chrome or Edge on Windows,\n'
-      + 'or install Chromium inside WSL:\n'
-      + '  sudo apt install chromium-browser';
+    return 'You are running in WSL. Windows browsers cannot be used\n'
+      + 'because Puppeteer cannot communicate with them across the\n'
+      + 'WSL boundary. Install Chromium inside WSL instead:\n\n'
+      + '  sudo apt update && sudo apt install -y chromium-browser\n\n'
+      + 'If that package is not available, try:\n'
+      + '  sudo apt install -y chromium\n\n'
+      + 'Or specify a browser path with: markbind pdf --browser /path/to/chrome';
   }
   if (platform === 'linux') {
     return 'Install a browser:\n'
       + '  sudo apt install chromium-browser    # Debian/Ubuntu\n'
       + '  sudo dnf install chromium            # Fedora\n'
-      + '  sudo pacman -S chromium              # Arch';
+      + '  sudo pacman -S chromium              # Arch\n\n'
+      + 'Or specify a browser path with: markbind pdf --browser /path/to/chrome';
   }
   if (platform === 'darwin') {
     return 'Install a browser:\n'
       + '  brew install --cask google-chrome\n'
-      + '  # or download from https://www.google.com/chrome/';
+      + '  # or download from https://www.google.com/chrome/\n\n'
+      + 'Or specify a browser path with: markbind pdf --browser /path/to/chrome';
   }
   if (platform === 'win32') {
     return 'Install Chrome or Edge:\n'
       + '  https://www.google.com/chrome/\n'
-      + '  https://www.microsoft.com/edge';
+      + '  https://www.microsoft.com/edge\n\n'
+      + 'Or specify a browser path with: markbind pdf --browser /path/to/chrome';
   }
-  return 'Install Chrome, Chromium, or Edge on your system.';
+  return 'Install Chrome, Chromium, or Edge on your system.\n'
+    + 'Or specify a browser path with: markbind pdf --browser /path/to/chrome';
 }
