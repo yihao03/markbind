@@ -47,10 +47,10 @@ function pdf(userSpecifiedRoot: string, output: string, options: any) {
       logger.info('Site built successfully. Starting PDF generation...');
 
       // Step 2: Dynamically import @markbind/core-pdf (optional dependency).
-      let PdfGenerator: any;
+      type CorePdfModule = typeof import('@markbind/core-pdf');
+      let corePdfModule: CorePdfModule;
       try {
-        const corePdf = await import('@markbind/core-pdf');
-        PdfGenerator = corePdf.PdfGenerator;
+        corePdfModule = await import('@markbind/core-pdf');
       } catch {
         logger.error(
           'PDF generation requires the @markbind/core-pdf package.\n'
@@ -66,41 +66,31 @@ function pdf(userSpecifiedRoot: string, output: string, options: any) {
       const resolvedBaseUrl = siteConfig.baseUrl || '';
 
       // Build PDF options from CLI flags
-      const pdfOptions: any = {
+      const pdfOptions: import('@markbind/core-pdf').PdfOptions = {
         siteOutputPath: siteOutputFolder,
         pdfOutputPath: pdfOutputFolder,
         baseUrl: resolvedBaseUrl,
         printBackground: true,
+        ...(options.format && { format: options.format }),
+        ...(options.merge && { merge: true }),
+        ...(options.mergeFilename && { mergeFilename: options.mergeFilename }),
+        ...(options.pages && { pages: options.pages.split(',').map((p: string) => p.trim()) }),
+        ...(options.waitTimeout && { waitTimeout: parseInt(options.waitTimeout, 10) }),
       };
 
-      if (options.format) {
-        pdfOptions.format = options.format;
-      }
-      if (options.merge) {
-        pdfOptions.merge = true;
-      }
-      if (options.mergeFilename) {
-        pdfOptions.mergeFilename = options.mergeFilename;
-      }
-      if (options.pages) {
-        pdfOptions.pages = options.pages.split(',').map((p: string) => p.trim());
-      }
-      if (options.waitTimeout) {
-        pdfOptions.waitTimeout = parseInt(options.waitTimeout, 10);
-      }
-
-      const generator = new PdfGenerator(pdfOptions);
-      const results = await generator.generate((msg: string) => logger.info(msg));
+      const generator = new corePdfModule.PdfGenerator(pdfOptions);
+      const results: import('@markbind/core-pdf').PdfPageResult[]
+        = await generator.generate((msg: string) => logger.info(msg));
 
       // Report summary
-      const succeeded = results.filter((r: any) => r.success).length;
-      const failed = results.filter((r: any) => !r.success).length;
+      const succeeded = results.filter(r => r.success).length;
+      const failed = results.filter(r => !r.success).length;
 
       if (failed > 0) {
         logger.warn(`PDF generation complete: ${succeeded} succeeded, ${failed} failed.`);
         results
-          .filter((r: any) => !r.success)
-          .forEach((r: any) => logger.error(`  ${r.htmlFile}: ${r.error}`));
+          .filter(r => !r.success)
+          .forEach(r => logger.error(`  ${r.htmlFile}: ${r.error}`));
         process.exitCode = 1;
       } else {
         logger.info(`PDF generation complete: ${succeeded} page(s) exported to ${pdfOutputFolder}`);

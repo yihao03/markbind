@@ -24,6 +24,7 @@
     "access": "public"
   },
   "scripts": {
+    "prebuild": "rm -rf dist",
     "build": "tsc --noEmitOnError"
   },
   "dependencies": {

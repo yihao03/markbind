@@ -1,8 +1,9 @@
 import path from 'path';
-import http from 'http';
 import fs from 'fs-extra';
-import type { Browser, Page } from 'puppeteer';
+import type { Browser, Page, LaunchOptions, PDFOptions } from 'puppeteer';
 import { PdfOptions, PdfPageResult } from './types';
+import { startLocalServer } from './LocalServer';
+import { mergePdfs } from './PdfMerger';
 
 const ASSETS_DIR = path.resolve(__dirname, '..', 'assets');
 const PDF_OVERRIDES_CSS_PATH = path.join(ASSETS_DIR, 'pdf-overrides.css');
@@ -15,10 +16,20 @@ const DEFAULT_MARGIN = {
   left: '15mm',
   right: '15mm',
 };
-const DEFAULT_WAIT_TIMEOUT = 10000;
+const DEFAULT_WAIT_TIMEOUT = 10_000;
 const DEFAULT_CONCURRENCY = 3;
 const DEFAULT_FOOTER_TEMPLATE = '<div style="font-size:8px;text-align:center;width:100%;">'
   + '<span class="pageNumber"></span> / <span class="totalPages"></span></div>';
+
+/** Timeout for page.goto() navigation */
+const NAVIGATION_TIMEOUT = 30_000;
+/** Timeout for checking if Vue has mounted on the page */
+const VUE_MOUNT_TIMEOUT = 10_000;
+/** Timeout for page.pdf() generation */
+const PDF_GENERATION_TIMEOUT = 60_000;
+/** Viewport dimensions for Puppeteer pages */
+const VIEWPORT_WIDTH = 1200;
+const VIEWPORT_HEIGHT = 800;
 
 /**
  * Generates PDF files from a built MarkBind site.
@@ -31,6 +42,7 @@ export class PdfGenerator {
   private options: Required<PdfOptions>;
   private overrideCss: string = '';
   private prepareJs: string = '';
+  private normalizedBaseUrl: string;
 
   constructor(options: PdfOptions) {
     this.options = {
@@ -50,6 +62,7 @@ export class PdfGenerator {
       concurrency: options.concurrency || DEFAULT_CONCURRENCY,
       executablePath: options.executablePath || process.env.PUPPETEER_EXECUTABLE_PATH || '',
     };
+    this.normalizedBaseUrl = this.options.baseUrl.replace(/\/$/, '');
   }
 
   /**
@@ -75,7 +88,10 @@ export class PdfGenerator {
     await fs.ensureDir(this.options.pdfOutputPath);
 
     // Start local server to serve the built site
-    const { server, port } = await this.startServer();
+    const { server, port } = await startLocalServer(
+      this.options.siteOutputPath,
+      this.options.baseUrl,
+    );
     log(`Local server started on port ${port}.`);
 
     let browser: Browser | undefined;
@@ -84,7 +100,7 @@ export class PdfGenerator {
     try {
       // Launch Puppeteer (uses its bundled Chromium by default)
       const puppeteer = await this.loadPuppeteer();
-      const launchOptions: any = {
+      const launchOptions: LaunchOptions = {
         headless: true,
         args: [
           '--no-sandbox',
@@ -101,7 +117,7 @@ export class PdfGenerator {
       log('Browser launched.');
 
       // Process pages with controlled concurrency
-      const batches = this.chunk(htmlFiles, this.options.concurrency);
+      const batches = chunk(htmlFiles, this.options.concurrency);
       for (const batch of batches) {
         const batchResults = await Promise.all(
           batch.map(htmlFile => this.convertPage(browser!, port, htmlFile, log)),
@@ -112,11 +128,11 @@ export class PdfGenerator {
       // Merge if requested, using site-nav order when available
       if (this.options.merge && results.some(r => r.success)) {
         const successful = results.filter(r => r.success);
-        const navOrder = await this.extractNavOrder();
+        const navOrder = await this.extractNavOrder(htmlFiles);
         const ordered = navOrder.length > 0
           ? this.sortByNavOrder(successful, navOrder, log)
           : successful;
-        await this.mergePdfs(ordered, log);
+        await mergePdfs(ordered, this.options.pdfOutputPath, this.options.mergeFilename, log);
       }
     } finally {
       if (browser) {
@@ -133,7 +149,7 @@ export class PdfGenerator {
    * Discover HTML files in siteOutputPath matching the configured globs.
    */
   private async discoverHtmlFiles(): Promise<string[]> {
-    const allFiles = await this.walkDir(this.options.siteOutputPath);
+    const allFiles = await walkDir(this.options.siteOutputPath);
 
     // Filter to .html files, then apply include/exclude globs
     const htmlFiles = allFiles
@@ -161,23 +177,6 @@ export class PdfGenerator {
   }
 
   /**
-   * Recursively list all files under a directory.
-   */
-  private async walkDir(dir: string): Promise<string[]> {
-    const entries = await fs.readdir(dir, { withFileTypes: true });
-    const files: string[] = [];
-    for (const entry of entries) {
-      const fullPath = path.join(dir, entry.name);
-      if (entry.isDirectory()) {
-        files.push(...await this.walkDir(fullPath));
-      } else {
-        files.push(fullPath);
-      }
-    }
-    return files;
-  }
-
-  /**
    * Convert a single HTML page to PDF.
    */
   private async convertPage(
@@ -199,9 +198,9 @@ export class PdfGenerator {
 
       // Set viewport to approximate A4 content width at 96dpi.
       // A4 = 210mm wide. With 15mm left+right margins = 180mm content.
-      // 180mm ≈ 680px at 96dpi. We use a wider viewport so content
+      // 180mm ~ 680px at 96dpi. We use a wider viewport so content
       // renders at full width before page.pdf() reflows to A4.
-      await page.setViewport({ width: 1200, height: 800 });
+      await page.setViewport({ width: VIEWPORT_WIDTH, height: VIEWPORT_HEIGHT });
 
       // Block all requests to external domains. The built site is fully
       // self-contained; external requests (CDN fonts, analytics, etc.)
@@ -217,9 +216,8 @@ export class PdfGenerator {
       });
 
       // Navigate to the page via the local server
-      const baseUrl = this.options.baseUrl.replace(/\/$/, '');
-      const url = `${localOrigin}${baseUrl}/${htmlFile}`;
-      await page.goto(url, { waitUntil: 'networkidle0', timeout: 30000 });
+      const url = `${localOrigin}${this.normalizedBaseUrl}/${htmlFile}`;
+      await page.goto(url, { waitUntil: 'networkidle0', timeout: NAVIGATION_TIMEOUT });
 
       // Wait for Vue to mount (#app should have __vue_app__)
       await page.waitForFunction(
@@ -227,14 +225,10 @@ export class PdfGenerator {
           const app = document.querySelector('#app');
           return app && (app as any).__vue_app__ !== undefined;
         },
-        { timeout: 10000 },
+        { timeout: VUE_MOUNT_TIMEOUT },
       ).catch(() => {
         // If Vue doesn't mount (e.g. static page without Vue), continue anyway
       });
-
-      // Note: iframes are handled by the browser-side replaceIframes()
-      // in the preparation script below, which replaces them with
-      // placeholders or inlines same-origin HTML content.
 
       // Inject PDF-specific CSS additions.
       // MarkBind's built-in @media print styles and d-print-none classes
@@ -251,18 +245,15 @@ export class PdfGenerator {
         preparePdfContent(${this.options.waitTimeout});
       `);
 
-      // Extra settle time after preparation
-      await page.evaluate(() => new Promise(resolve => setTimeout(resolve, 500)));
-
       // Generate PDF
-      const pdfOptions: any = {
+      const pdfOptions: PDFOptions = {
         path: pdfOutputFile,
         format: this.options.format,
         landscape: false,
         preferCSSPageSize: false,
         margin: this.options.margin,
         printBackground: this.options.printBackground,
-        timeout: 60000,
+        timeout: PDF_GENERATION_TIMEOUT,
       };
 
       if (this.options.headerTemplate || this.options.footerTemplate) {
@@ -286,8 +277,8 @@ export class PdfGenerator {
 
       log(`  OK: ${htmlFile} -> ${pdfFile} (${pageCount} page(s))`);
       return { htmlFile, pdfFile: pdfOutputFile, title, pageCount, success: true };
-    } catch (err: any) {
-      const errorMsg = err.message || String(err);
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : String(err);
       log(`  FAIL: ${htmlFile} - ${errorMsg}`);
       return { htmlFile, pdfFile: pdfOutputFile, title: htmlFile, pageCount: 0, success: false, error: errorMsg };
     } finally {
@@ -302,11 +293,10 @@ export class PdfGenerator {
    * Reads the first HTML file that contains a <nav id="site-nav"> and
    * extracts all <a href="..."> links in document order. Returns an
    * ordered list of relative HTML file paths.
+   *
+   * Accepts a pre-discovered list of HTML files to avoid re-walking the directory.
    */
-  private async extractNavOrder(): Promise<string[]> {
-    const htmlFiles = await this.discoverHtmlFiles();
-    const baseUrl = this.options.baseUrl.replace(/\/$/, '');
-
+  private async extractNavOrder(htmlFiles: string[]): Promise<string[]> {
     for (const file of htmlFiles) {
       const fullPath = path.join(this.options.siteOutputPath, file);
       const html = await fs.readFile(fullPath, 'utf-8');
@@ -326,8 +316,8 @@ export class PdfGenerator {
       while ((match = hrefRegex.exec(navHtml)) !== null) {
         let href = match[1];
         // Strip baseUrl prefix
-        if (baseUrl && href.startsWith(baseUrl)) {
-          href = href.slice(baseUrl.length);
+        if (this.normalizedBaseUrl && href.startsWith(this.normalizedBaseUrl)) {
+          href = href.slice(this.normalizedBaseUrl.length);
         }
         // Remove leading slash and normalize
         href = href.replace(/^\//, '');
@@ -376,185 +366,7 @@ export class PdfGenerator {
   }
 
   /**
-   * Merge multiple PDFs into a single file using pdf-lib,
-   * with a PDF outline (bookmarks) so viewers show a clickable TOC sidebar.
-   */
-  private async mergePdfs(results: PdfPageResult[], log: (msg: string) => void): Promise<void> {
-    const { PDFDocument, PDFDict, PDFName, PDFArray, PDFString, PDFNull, PDFNumber }
-      = await import('pdf-lib');
-    const merged = await PDFDocument.create();
-
-    // Track the first page index of each source document in the merged PDF
-    const bookmarks: { title: string; pageIndex: number }[] = [];
-    let currentPageIndex = 0;
-
-    for (const result of results) {
-      bookmarks.push({ title: result.title, pageIndex: currentPageIndex });
-      const buf = await fs.readFile(result.pdfFile);
-      const pdf = await PDFDocument.load(new Uint8Array(buf.buffer, buf.byteOffset, buf.byteLength));
-      const pages = await merged.copyPages(pdf, pdf.getPageIndices());
-      pages.forEach(p => merged.addPage(p));
-      currentPageIndex += pages.length;
-    }
-
-    // Build the PDF outline (bookmark tree) so viewers show a TOC sidebar
-    if (bookmarks.length > 0) {
-      this.addOutline(merged, bookmarks, { PDFDict, PDFName, PDFArray, PDFString, PDFNull, PDFNumber });
-      log(`Added ${bookmarks.length} bookmark(s) to merged PDF.`);
-    }
-
-    const mergedPath = path.join(this.options.pdfOutputPath, this.options.mergeFilename);
-    const mergedBytes = await merged.save();
-    await fs.writeFile(mergedPath, mergedBytes);
-    log(`Merged PDF written to ${mergedPath}`);
-  }
-
-  /**
-   * Add a PDF outline (bookmarks/TOC) to a PDFDocument using low-level pdf-lib API.
-   * Each bookmark points to the first page of a source document.
-   */
-  private addOutline(
-    doc: any,
-    bookmarks: { title: string; pageIndex: number }[],
-    pdfLib: { PDFDict: any; PDFName: any; PDFArray: any; PDFString: any; PDFNull: any; PDFNumber: any },
-  ): void {
-    const { PDFDict, PDFName, PDFArray, PDFString, PDFNull } = pdfLib;
-    const context = doc.context;
-    const pages = doc.getPages();
-
-    // Create outline item refs first so we can link Prev/Next
-    const outlineItemRefs: any[] = [];
-    const outlineItems: any[] = [];
-
-    for (let i = 0; i < bookmarks.length; i++) {
-      const ref = context.nextRef();
-      outlineItemRefs.push(ref);
-      outlineItems.push(bookmarks[i]);
-    }
-
-    // Create the root /Outlines dictionary
-    const outlinesDict = context.obj({
-      Type: 'Outlines',
-      First: outlineItemRefs[0],
-      Last: outlineItemRefs[outlineItemRefs.length - 1],
-      Count: bookmarks.length,
-    });
-    const outlinesRef = context.register(outlinesDict);
-
-    // Create each outline item
-    for (let i = 0; i < bookmarks.length; i++) {
-      const { title, pageIndex } = bookmarks[i];
-      const targetPage = pages[pageIndex];
-
-      // Destination: [pageRef /XYZ null null null] — top of the page
-      const dest = PDFArray.withContext(context);
-      dest.push(targetPage.ref);
-      dest.push(PDFName.of('XYZ'));
-      dest.push(PDFNull);
-      dest.push(PDFNull);
-      dest.push(PDFNull);
-
-      const map = new Map();
-      map.set(PDFName.of('Title'), PDFString.of(title));
-      map.set(PDFName.of('Parent'), outlinesRef);
-      map.set(PDFName.of('Dest'), dest);
-
-      if (i > 0) {
-        map.set(PDFName.of('Prev'), outlineItemRefs[i - 1]);
-      }
-      if (i < bookmarks.length - 1) {
-        map.set(PDFName.of('Next'), outlineItemRefs[i + 1]);
-      }
-
-      const itemDict = PDFDict.fromMapWithContext(map, context);
-      context.assign(outlineItemRefs[i], itemDict);
-    }
-
-    // Set /Outlines on the document catalog
-    doc.catalog.set(PDFName.of('Outlines'), outlinesRef);
-  }
-
-  /**
-   * Start a minimal static HTTP server serving the built site.
-   */
-  private startServer(): Promise<{ server: http.Server; port: number }> {
-    return new Promise((resolve, reject) => {
-      const siteRoot = this.options.siteOutputPath;
-      const baseUrl = this.options.baseUrl.replace(/\/$/, '');
-
-      const server = http.createServer((req, res) => {
-        const urlPath = decodeURIComponent(req.url || '/');
-        // Strip query string
-        let cleanPath = urlPath.split('?')[0];
-
-        // Strip baseUrl prefix so the path maps to the _site/ root.
-        // MarkBind outputs files at _site/ root regardless of baseUrl,
-        // but internal links include the baseUrl prefix.
-        if (baseUrl && cleanPath.startsWith(baseUrl)) {
-          cleanPath = cleanPath.slice(baseUrl.length) || '/';
-        }
-
-        let filePath = path.join(siteRoot, cleanPath);
-
-        // If path is a directory, serve index.html
-        if (fs.existsSync(filePath) && fs.statSync(filePath).isDirectory()) {
-          filePath = path.join(filePath, 'index.html');
-        }
-
-        if (!fs.existsSync(filePath)) {
-          res.writeHead(404);
-          res.end('Not found');
-          return;
-        }
-
-        const ext = path.extname(filePath).toLowerCase();
-        const mimeTypes: Record<string, string> = {
-          '.html': 'text/html; charset=utf-8',
-          '.css': 'text/css; charset=utf-8',
-          '.js': 'application/javascript; charset=utf-8',
-          '.json': 'application/json; charset=utf-8',
-          '.png': 'image/png',
-          '.jpg': 'image/jpeg',
-          '.jpeg': 'image/jpeg',
-          '.gif': 'image/gif',
-          '.svg': 'image/svg+xml',
-          '.ico': 'image/x-icon',
-          '.woff': 'font/woff',
-          '.woff2': 'font/woff2',
-          '.ttf': 'font/ttf',
-          '.eot': 'application/vnd.ms-fontobject',
-          '.otf': 'font/otf',
-          '.pdf': 'application/pdf',
-          '.map': 'application/json',
-        };
-
-        const contentType = mimeTypes[ext] || 'application/octet-stream';
-        const fileStream = fs.createReadStream(filePath);
-
-        res.writeHead(200, { 'Content-Type': contentType });
-        fileStream.pipe(res);
-        fileStream.on('error', () => {
-          res.writeHead(500);
-          res.end('Internal server error');
-        });
-      });
-
-      // Listen on a random available port on localhost
-      server.listen(0, '127.0.0.1', () => {
-        const address = server.address();
-        if (!address || typeof address === 'string') {
-          reject(new Error('Failed to get server address'));
-          return;
-        }
-        resolve({ server, port: address.port });
-      });
-
-      server.on('error', reject);
-    });
-  }
-
-  /**
-   * Dynamically import puppeteer-core, with a helpful error message if not installed.
+   * Dynamically import puppeteer, with a helpful error message if not installed.
    */
   private async loadPuppeteer(): Promise<typeof import('puppeteer')> {
     try {
@@ -567,15 +379,32 @@ export class PdfGenerator {
       );
     }
   }
+}
 
-  /**
-   * Split an array into chunks of the given size.
-   */
-  private chunk<T>(arr: T[], size: number): T[][] {
-    const chunks: T[][] = [];
-    for (let i = 0; i < arr.length; i += size) {
-      chunks.push(arr.slice(i, i + size));
+/**
+ * Recursively list all files under a directory.
+ */
+async function walkDir(dir: string): Promise<string[]> {
+  const entries = await fs.readdir(dir, { withFileTypes: true });
+  const files: string[] = [];
+  for (const entry of entries) {
+    const fullPath = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      files.push(...await walkDir(fullPath));
+    } else {
+      files.push(fullPath);
     }
-    return chunks;
   }
+  return files;
+}
+
+/**
+ * Split an array into chunks of the given size.
+ */
+function chunk<T>(arr: T[], size: number): T[][] {
+  const chunks: T[][] = [];
+  for (let i = 0; i < arr.length; i += size) {
+    chunks.push(arr.slice(i, i + size));
+  }
+  return chunks;
 }

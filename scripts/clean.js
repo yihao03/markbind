@@ -51,6 +51,19 @@ function cleanDir(dir) {
       removeFile(extFile);
     });
   });
+
+  // tsc --build --clean leaves .d.ts files behind in dist/ directories.
+  // Clean any remaining .d.ts files that weren't caught above.
+  const remainingDts = walkSync(dir, {
+    globs: ['**/dist/**/*.d.ts'],
+    ignore: ['**/node_modules'],
+    directories: false,
+    includeBasePath: true,
+  });
+
+  remainingDts.forEach((dtsFile) => {
+    removeFile(dtsFile);
+  });
 }
 
 cleanDir(packagesDir);
