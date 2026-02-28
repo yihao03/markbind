@@ -9,9 +9,9 @@
 
 /* eslint-env browser */
 
-async function preparePdfContent(waitTimeout) {
-  const RETRIEVER_POLL_INTERVAL = 200;
+var RETRIEVER_POLL_INTERVAL = 200;
 
+async function preparePdfContent(waitTimeout) {
   // ------------------------------------------------------------------
   // 1. Expand every collapsed panel by clicking its header.
   //    This triggers the Vue component's toggle() or open() method,
@@ -21,36 +21,16 @@ async function preparePdfContent(waitTimeout) {
   // First, handle minimized panels (they render as a button with .morph-display-wrapper).
   // Clicking them calls open(), which sets localMinimized=false, localExpanded=true,
   // and triggers the Retriever.
-  const minimizedButtons = document.querySelectorAll('.morph-display-wrapper');
-  for (const btn of minimizedButtons) {
-    btn.click();
+  var minimizedButtons = document.querySelectorAll('.morph-display-wrapper');
+  for (var k = 0; k < minimizedButtons.length; k++) {
+    minimizedButtons[k].click();
   }
 
-  // Small yield to let Vue process the minimized → expanded transition
+  // Small yield to let Vue process the minimized -> expanded transition
   await sleep(100);
 
-  // Now expand all collapsed expandable panels.
-  // NestedPanel: .expandable-card .card-header.header-toggle triggers toggle()
-  // MinimalPanel: .header-toggle triggers minimalToggle()
-  //
-  // We only click headers whose panel is currently collapsed.
-  // A collapsed panel has .card-collapse with max-height of "0px" or a small peek value.
-  const panelHeaders = document.querySelectorAll('.header-toggle');
-  for (const header of panelHeaders) {
-    const card = header.closest('.card');
-    if (!card) continue;
-
-    const collapse = card.querySelector('.card-collapse');
-    if (!collapse) continue;
-
-    // If the panel body is not yet rendered (wasRetrieverLoaded is false),
-    // the card-body div won't exist or will show "Loading...".
-    // Either way, if max-height is not 'none', the panel is collapsed.
-    const maxHeight = collapse.style.maxHeight;
-    if (maxHeight !== 'none' && maxHeight !== '') {
-      header.click();
-    }
-  }
+  // First pass: expand all collapsed expandable panels.
+  expandCollapsedPanels();
 
   // Yield to let Vue process expansions and kick off Retriever fetches
   await sleep(300);
@@ -61,17 +41,7 @@ async function preparePdfContent(waitTimeout) {
   //    not expandable but had preload=false and src set.
   //    Click any remaining collapsed headers (second pass).
   // ------------------------------------------------------------------
-  const remainingHeaders = document.querySelectorAll('.header-toggle');
-  for (const header of remainingHeaders) {
-    const card = header.closest('.card');
-    if (!card) continue;
-    const collapse = card.querySelector('.card-collapse');
-    if (!collapse) continue;
-    const maxHeight = collapse.style.maxHeight;
-    if (maxHeight !== 'none' && maxHeight !== '') {
-      header.click();
-    }
-  }
+  expandCollapsedPanels();
 
   await sleep(200);
 
@@ -83,46 +53,66 @@ async function preparePdfContent(waitTimeout) {
   await waitForRetrievers(waitTimeout);
 
   // ------------------------------------------------------------------
-  // 4. Force all card-collapse elements to have max-height: none
-  //    in case any transitions didn't complete.
-  // ------------------------------------------------------------------
-  document.querySelectorAll('.card-collapse').forEach(function(el) {
-    el.style.maxHeight = 'none';
-    el.style.overflow = 'visible';
-    el.style.transition = 'none';
-  });
-
-  // ------------------------------------------------------------------
-  // 5. Remove d-print-none from card bodies so content is visible.
+  // 4. Remove d-print-none from card bodies so content is visible.
+  //    The CSS override (pdf-overrides.css) also forces display:block
+  //    on .card-body.d-print-none as a fallback, but removing the class
+  //    directly is more reliable for downstream style calculations.
   // ------------------------------------------------------------------
   document.querySelectorAll('.card-body.d-print-none').forEach(function(el) {
     el.classList.remove('d-print-none');
   });
 
   // ------------------------------------------------------------------
-  // 6. Remove peek collapsed styling.
+  // 5. Remove peek collapsed styling.
   // ------------------------------------------------------------------
   document.querySelectorAll('.card-peek-collapsed').forEach(function(el) {
     el.classList.remove('card-peek-collapsed');
   });
 
   // ------------------------------------------------------------------
-  // 7. Replace iframes with inline content or placeholders.
+  // 6. Replace iframes with inline content or placeholders.
   //    Puppeteer's page.pdf() does not capture iframe frame content,
   //    so we need to either inline the content or show a placeholder.
   // ------------------------------------------------------------------
   await replaceIframes();
 
   // ------------------------------------------------------------------
-  // 8. Trigger the beforeprint event so that page-nav-print containers
+  // 7. Trigger the beforeprint event so that page-nav-print containers
   //    get populated (from print.js).
   // ------------------------------------------------------------------
   window.dispatchEvent(new Event('beforeprint'));
 
   // ------------------------------------------------------------------
-  // 9. Small final settle time for any remaining DOM updates.
+  // 8. Small final settle time for any remaining DOM updates.
   // ------------------------------------------------------------------
   await sleep(200);
+}
+
+/**
+ * Click all .header-toggle elements whose panel is currently collapsed.
+ * NestedPanel: .expandable-card .card-header.header-toggle triggers toggle()
+ * MinimalPanel: .header-toggle triggers minimalToggle()
+ *
+ * A collapsed panel has .card-collapse with max-height of "0px" or a small peek value.
+ */
+function expandCollapsedPanels() {
+  var headers = document.querySelectorAll('.header-toggle');
+  for (var i = 0; i < headers.length; i++) {
+    var header = headers[i];
+    var card = header.closest('.card');
+    if (!card) continue;
+
+    var collapse = card.querySelector('.card-collapse');
+    if (!collapse) continue;
+
+    // If the panel body is not yet rendered (wasRetrieverLoaded is false),
+    // the card-body div won't exist or will show "Loading...".
+    // Either way, if max-height is not 'none', the panel is collapsed.
+    var maxHeight = collapse.style.maxHeight;
+    if (maxHeight !== 'none' && maxHeight !== '') {
+      header.click();
+    }
+  }
 }
 
 /**
@@ -157,7 +147,6 @@ function waitForRetrievers(timeout) {
       }
     }
 
-    var RETRIEVER_POLL_INTERVAL = 200;
     check();
   });
 }
