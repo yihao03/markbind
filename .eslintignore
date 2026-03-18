@@ -1,0 +1,58 @@
+*.min.*
+*.page-vue-render.js
+node_modules
+
+*.d.ts
+
+packages/cli/src/lib/live-server/*
+
+# --- packages/core ---
+
+# Ignore JS files that are compiled from TS
+packages/core/src/**/constants.js
+packages/core/src/errors/**/*.js
+packages/core/src/External/*.js
+packages/core/src/html/**/*.js
+packages/core/src/Layout/*.js
+packages/core/src/lib/nunjucks-extensions/*.js
+packages/core/src/lib/markdown-it/index.js
+packages/core/src/lib/markdown-it/highlight/*.js
+packages/core/src/lib/markdown-it/plugins/**/*.js
+packages/core/src/lib/markdown-it/utils/*.js
+packages/core/src/Page/*.js
+packages/core/src/plugins/**/*.js
+packages/core/src/Site/*.js
+packages/core/src/utils/*.js
+packages/core/src/variables/*.js
+packages/core/test/unit/**/*.js
+packages/core/index.js
+
+packages/core/src/lib/progress/*.js
+
+
+# Rules for pure JS files
+packages/core/src/lib/markdown-it/patches/*
+packages/core/src/lib/markdown-it/plugins/*
+!packages/core/src/lib/markdown-it/plugins/markdown-it-icons.ts
+!packages/core/src/lib/markdown-it/plugins/markdown-it-alt-frontmatter.ts
+
+# --- packages/core end ---
+
+# --- packages/cli ---
+packages/cli/dist/**/*.js
+# --- packages/cli end ---
+
+!.eslintrc.js
+
+# --- packages/vue-components ---
+
+packages/vue-components/src/directives/Closeable.js
+packages/vue-components/src/directives/Float.js
+
+# Legacy code with pre-existing lint issues
+packages/vue-components/src/utils/NodeList.ts
+packages/vue-components/src/utils/utils.ts
+
+# --- packages/vue-components end ---
+
+dangerfile.js

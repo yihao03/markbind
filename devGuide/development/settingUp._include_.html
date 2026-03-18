@@ -1,0 +1,67 @@
+<p><span id="title" class="d-none">Setting up</span></p>
+
+<h1 id="setting-up">Setting up<a class="fa fa-anchor" href="#setting-up" onclick="event.stopPropagation()"></a></h1>
+<div class="lead">
+<p>This page explains how to set up your development environment to start contributing to MarkBind.</p></div>
+<h2 id="prerequisites">Prerequisites<a class="fa fa-anchor" href="#prerequisites" onclick="event.stopPropagation()"></a></h2>
+<ol>
+<li>
+<p><strong>Node.js</strong> (<tooltip><template #content>MarkBind aims to support up to the last maintenance lts release as outlined <a href="https://nodejs.org/en/about/releases/">here</a></template>v22.22.0</tooltip> or higher) with<br>
+a recent version of <strong>npm</strong></p></li>
+<li>
+<p><strong>Java</strong> 8 or higher, and<br>
+<strong>Graphviz</strong> (<tooltip><template #content>Some versions are not recommended, as mentioned <a href="https://plantuml.com/graphviz-dot#:~:text=Important%20note%20about%20version">here</a></template>v2.38</tooltip> or higher, <em>installation is optional on Windows</em>) <br>
+<span class="dimmed">(The above two are required for one of the third-party libraries used by MarkBind)</span></p></li>
+<li>
+<p><strong>Python</strong> 3 or later, and<br>
+<span class="dimmed">(Required if using python pre-commit hooks)</span></p></li>
+<li>
+<p><strong>Verify</strong> that all tools are accessible and the versions are as expected by running these commands in the console.</p>
+<ul>
+<li><code class="hljs inline no-lang" v-pre>node --version</code></li>
+<li><code class="hljs inline no-lang" v-pre>npm --version</code></li>
+<li><code class="hljs inline no-lang" v-pre>java --version</code></li>
+<li><code class="hljs inline no-lang" v-pre>dot -V</code> (for Graphviz - optional on Windows)</li>
+<li><code class="hljs inline no-lang" v-pre>python3 -V</code></li></ul></li></ol>
+<box type="tip" seamless>
+<p>We recommend the <strong>WebStorm IDE</strong> or <strong>VS Code</strong> for working with MarkBind code.</p></box>
+<h2 id="setting-up-the-dev-environment">Setting up the dev environment<a class="fa fa-anchor" href="#setting-up-the-dev-environment" onclick="event.stopPropagation()"></a></h2>
+<ol>
+<li>
+<p><strong>Fork and clone</strong> the MarkBind repo.</p></li>
+<li>
+<p><strong>Install dependencies</strong> by running
+<popover><template #content>Under the hood, this calls <code class="hljs inline no-lang" v-pre>npm ci</code> and <code class="hljs inline no-lang" v-pre>npm run build:backend</code></template><code class="hljs inline no-lang" v-pre>npm run setup</code></popover>
+in the <strong>root folder</strong> of your cloned repo.</p></li>
+<li>
+<p><strong>Bind your cloned version of MarkBind to your console</strong> by navigating to the cloned <code class="hljs inline no-lang" v-pre>packages/cli</code> folder and running <code class="hljs inline no-lang" v-pre>npm link</code></p></li></ol>
+<box type="warning" class="ms-4" seamless>
+<p>If the <code class="hljs inline no-lang" v-pre>markbind</code> command fails to execute with permission issues in the console, add execute permissions to the generated file in <code class="hljs inline no-lang" v-pre>packages/cli/dist/index.js</code></p>
+<p>To prevent this from occurring, it is recommended to use the <code class="hljs inline no-lang" v-pre>dev</code>/<code class="hljs inline no-lang" v-pre>build:backend</code> scripts as described in <a href="/devGuide/development/workflow.html#editing-backend-features">the workflow</a></p></box>
+<ol>
+<li><strong>Congratulations!</strong> Now you are ready to start modifying MarkBind code.</li></ol>
+<h2 id="setting-up-the-git-hooks-optional-but-recommended">Setting up the git hooks (optional but recommended)<a class="fa fa-anchor" href="#setting-up-the-git-hooks-optional-but-recommended" onclick="event.stopPropagation()"></a></h2>
+<p>There are a few <a href="/devGuide/development/workflow.html#git-hooks">Git hooks</a> implemented using the <a href="https://pre-commit.com/">pre-commit</a> tool that runs common tasks like linting, automated tests and compiling typescript files.</p>
+<p><strong>Install the hooks</strong> by running <code class="hljs inline no-lang" v-pre>python3 ./pre-commit/pre-commit-2.20.0.pyz install</code> in the <strong>root folder</strong> of your cloned repo.</p>
+<p>If you ever need to uninstall the hooks, simply run <code class="hljs inline no-lang" v-pre>uninstall</code> instead of <code class="hljs inline no-lang" v-pre>install</code>.</p>
+<h3 id="common-setup-questions">Common setup questions<a class="fa fa-anchor" href="#common-setup-questions" onclick="event.stopPropagation()"></a></h3>
+<ol>
+<li>
+<p>Does MarkBind work with all operating systems?</p>
+<p>Yes! We support all operating systems.</p></li>
+<li>
+<p>How does MarkBind manage dependencies?</p>
+<p>MarkBind uses <a href="https://github.com/lerna/lerna">lerna</a>, a popular
+multi-package development tool, to manage its dependencies. It is
+essentially a high level wrapper over node and npm's functionalities.</p></li>
+<li>
+<p>How do I move back to the released version of MarkBind?</p>
+<p>To go back to the released version of MarkBind, run
+<code class="hljs inline no-lang" v-pre>npm un -g markbind-cli</code>, followed by <code class="hljs inline no-lang" v-pre>npm i -g markbind-cli</code>.</p></li>
+<li>
+<p>Some of my front-end components are not working as expected when running <code class="hljs inline no-lang" v-pre>markbind serve</code>.</p>
+<p>Try running either <code class="hljs inline no-lang" v-pre>markbind serve -d</code> or <code class="hljs inline no-lang" v-pre>npm run build:web</code> to view frontend changes (especially after pulling a frontend update that someone else may have pushed). You can see more details <a href="/devGuide/development/workflow.html#editing-frontend-features">here</a>.</p></li></ol>
+<div class="clearfix">
+<p><span class="float-start"><a class="btn" href="/devGuide/bootcamp/implementAFeature.html"><span><span aria-hidden="true" class="far fa-arrow-alt-circle-left"></span> <span>Implement a New Feature</span></span></a></span></p>
+<p><span class="float-end"><a class="btn" href="/devGuide/development/workflow.html"><span><span>Workflow</span> <span aria-hidden="true" class="far fa-arrow-alt-circle-right"></span></span></a></span></p></div>
+<br>

@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script>
+      (function() {
+        const storageKey = 'markbind-theme';
+        const darkTheme = 'dark';
+        const lightTheme = 'light';
+        let resolvedTheme = 'light';
+
+        try {
+          const storedTheme = localStorage.getItem(storageKey);
+          if (storedTheme === darkTheme || storedTheme === lightTheme) {
+            resolvedTheme = storedTheme;
+          } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            resolvedTheme = darkTheme;
+          } else {
+            resolvedTheme = lightTheme;
+          }
+        } catch (error) {
+          if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            resolvedTheme = darkTheme;
+          }
+        }
+
+        document.documentElement.setAttribute('data-bs-theme', resolvedTheme);
+        window.__MARKBIND_THEME__ = resolvedTheme;
+      }());
+    </script>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="generator" content="MarkBind 6.3.1">
+    <meta name="viewport" content="width=device-width, initial-scale=1"><title>MarkBind - Workflow</title> <link rel="stylesheet" href="/markbind/css/bootstrap.min.css"> <link rel="stylesheet" href="/markbind/fontawesome/css/all.min.css"> <link rel="stylesheet" href="/markbind/glyphicons/css/bootstrap-glyphicons.min.css"><link rel="stylesheet" id="markbind-highlight-light" href="/markbind/css/codeblock-light.min.css">
+    <link rel="stylesheet" id="markbind-highlight-dark" href="/markbind/css/codeblock-dark.min.css"><link rel="stylesheet" href="/markbind/css/markbind.min.css"><link rel="stylesheet" href="/plugins/codeBlockWrapButtons/codeBlockButtons.css"><link rel="stylesheet" href="/plugins/web3Form/web-3-form.css"><link rel="stylesheet" href="/plugins/codeBlockCopyButtons/codeBlockButtons.css"><link rel="stylesheet" href="/plugins/dataTable/datatables.min.css"><link rel="stylesheet" href="/plugins/dataTable/datatables-additional.css"><link rel="stylesheet" href="/plugins/markbind-plugin-anchors/markbind-plugin-anchors.css"><link rel="stylesheet" href="/plugins/markbind-plugin-tree/markbind-plugin-tree.css">
+    
+  <link rel="stylesheet" href="/css/main.css">
+<link rel="icon" href="/favicon.ico"><script>
+      (function() {
+        const theme = window.__MARKBIND_THEME__ || 'light';
+        const lightStylesheet = document.getElementById('markbind-highlight-light');
+        const darkStylesheet = document.getElementById('markbind-highlight-dark');
+
+        if (lightStylesheet && darkStylesheet) {
+          lightStylesheet.disabled = theme !== 'light';
+          darkStylesheet.disabled = theme !== 'dark';
+        }
+      }());
+    </script>
+</head>
+<script>
+  const baseUrl = ''
+</script>
+<body  data-bs-spy="scroll" data-bs-target="#mb-page-nav" data-bs-offset="100"  data-code-theme="light">
+<div id="app"><!--[--><header sticky><div data-v-6758ec75><nav class="navbar navbar-expand-md d-print-none navbar-dark bg-dark" data-v-6758ec75><div class="container-fluid" data-v-6758ec75><div class="navbar-left" data-v-6758ec75><!--[--><a href="/index.html" title="Home" class="navbar-brand"><img src="/images/logo-darkbackground.svg" height="20"></a><!--]--></div><div class="navbar-default" data-v-6758ec75><ul class="navbar-nav me-auto mt-2 mt-lg-0" data-v-6758ec75><!--[--> <li><a highlight-on="exact" href="/index.html" class="nav-link">HOME</a></li> <div tags="environment--ug environment--combined"><li><a highlight-on="sibling-or-child" href="/userGuide/index.html" class="nav-link">USER GUIDE</a></li></div> <div tags="environment--dg environment--combined"><li><a highlight-on="sibling-or-child" href="/devGuide/index.html" class="nav-link">DEVELOPER GUIDE</a></li></div> <li><a highlight-on="exact" href="/showcase.html" class="nav-link">SHOWCASE</a></li> <li><a highlight-on="exact" href="/about.html" class="nav-link">ABOUT</a></li> <li><a href="https://github.com/MarkBind/markbind" target="_blank" class="nav-link"><span><span aria-hidden="true" class="fab fa-github"></span></span></a></li> <!--]--></ul></div><div class="navbar-right" data-v-6758ec75><ul class="navbar-nav" data-v-6758ec75><!--[--><li><form class="navbar-form"><div style="position:relative;" class="dropdown" data-v-103d5c4e><!--[--><input value="" data-bs-toggle="dropdown" type="text" class="form-control" placeholder="Search" autocomplete="off" data-v-103d5c4e><div class="form-control placeholder-div-hidden" data-v-103d5c4e>Search</div><!--]--><ul class="dropdown-menu search-dropdown-menu dropdown-menu-hidden dropdown-menu-end" data-v-103d5c4e><!--[--><!--]--></ul></div></form></li><!--]--></ul><button type="button" class="btn btn-sm btn-outline-secondary dark-mode-toggle navbar-dark-mode-toggle" aria-label="Switch to dark mode" title="Switch to dark mode" data-v-6758ec75 data-v-3a7d513e><span class="dark-mode-toggle-icon" aria-hidden="true" data-v-3a7d513e><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" data-v-3a7d513e><path d="M8 1a.5.5 0 0 1 .5.5v1.5a.5.5 0 0 1-1 0V1.5A.5.5 0 0 1 8 1zm0 10
+          a.5.5 0 0 1 .5.5V13a.5.5 0 0 1-1 0v-1.5A.5.5 0 0 1 8 11zm7-3a.5.5 0 0
+          1-.5.5H13a.5.5 0 0 1 0-1h1.5A.5.5 0 0 1 15 8zM3 8a.5.5 0 0 1-.5.5H1a.5.5
+          0 0 1 0-1h1.5A.5.5 0 0 1 3 8zm9.95-4.536a.5.5 0 0 1 0 .707L11.89 5.232a.5.5
+          0 1 1-.707-.707l1.06-1.061a.5.5 0 0 1 .707 0zM4.818 11.182a.5.5 0 0 1 0
+          .707l-1.06 1.061a.5.5 0 1 1-.708-.707l1.061-1.06a.5.5 0 0 1 .707 0zm8.132
+          1.768a.5.5 0 0 1-.707 0l-1.06-1.06a.5.5 0 1 1 .707-.708l1.06 1.061a.5.5
+          0 0 1 0 .707zM4.818 4.818a.5.5 0 0 1-.707 0L3.05 3.757a.5.5 0 0 1 .708
+          -.707l1.06 1.06a.5.5 0 0 1 0 .708z" data-v-3a7d513e></path><path d="M8 4a4 4 0 1 1 0 8 4 4 0 0 1 0-8z" data-v-3a7d513e></path></svg></span></button></div></div></nav><div style="display:none;" class="lower-navbar-container" data-v-6758ec75><!--[--><!----><!----><!--]--></div></div></header> <div id="flex-body"><nav id="site-nav" data-v-6b1b63d2><!--[--><div class="site-nav-top"><div class="fw-bold mb-2" style="font-size:1.25rem;">Developer Guide</div></div> <div class="nav-component slim-scroll"><div class="site-nav-root"><!--[--><ul class="site-nav-list site-nav-list-root" data-v-6b1b63d2><!--[--><li><div class="site-nav-default-list-item site-nav-list-item-0" onclick="handleSiteNavClick(this)"><a href="/devGuide/devGuide.html">Contributing</a></div></li> <li><div class="site-nav-default-list-item site-nav-list-item-0" onclick="handleSiteNavClick(this)">Onboarding Bootcamp
+
+<div class="site-nav-dropdown-btn-container"><i class="site-nav-dropdown-btn-icon" onclick="handleSiteNavClick(this.parentNode.parentNode, false); event.stopPropagation();"><span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span></i></div></div><ul class="site-nav-dropdown-container site-nav-list"><li><div class="site-nav-default-list-item site-nav-list-item-1" onclick="handleSiteNavClick(this)"><a href="/devGuide/bootcamp/intro.html">Introduction</a></div></li> <li><div class="site-nav-default-list-item site-nav-list-item-1" onclick="handleSiteNavClick(this)"><a href="/devGuide/bootcamp/exploreMarkBind.html">Explore MarkBind as a User</a></div></li> <li><div class="site-nav-default-list-item site-nav-list-item-1" onclick="handleSiteNavClick(this)"><a href="/devGuide/bootcamp/contributeToDocs.html">Contribute to Documentation</a></div></li> <li><div class="site-nav-default-list-item site-nav-list-item-1" onclick="handleSiteNavClick(this)"><a href="/devGuide/bootcamp/fixABug.html">Fix a Bug</a></div></li> <li><div class="site-nav-default-list-item site-nav-list-item-1" onclick="handleSiteNavClick(this)"><a href="/devGuide/bootcamp/implementAFeature.html">Implement a New Feature</a></div></li></ul></li> <li><div class="site-nav-default-list-item site-nav-list-item-0" onclick="handleSiteNavClick(this)">Development 
+
+<div class="site-nav-dropdown-btn-container"><i class="site-nav-dropdown-btn-icon site-nav-rotate-icon" onclick="handleSiteNavClick(this.parentNode.parentNode, false); event.stopPropagation();"><span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span></i></div></div><ul class="site-nav-dropdown-container site-nav-dropdown-container-open site-nav-list"><li><div class="site-nav-default-list-item site-nav-list-item-1" onclick="handleSiteNavClick(this)"><a href="/devGuide/development/settingUp.html">Setting up</a></div></li> <li><div class="site-nav-default-list-item site-nav-list-item-1" onclick="handleSiteNavClick(this)"><a href="/devGuide/development/workflow.html">Workflow</a></div></li> <li><div class="site-nav-default-list-item site-nav-list-item-1" onclick="handleSiteNavClick(this)"><a href="/devGuide/development/aiUse.html">AI Use</a></div></li> <li><div class="site-nav-default-list-item site-nav-list-item-1" onclick="handleSiteNavClick(this)"><a href="/devGuide/development/writingComponents.html">Writing Components</a></div></li> <li><div class="site-nav-default-list-item site-nav-list-item-1" onclick="handleSiteNavClick(this)"><a href="/devGuide/development/writingPlugins.html">Writing Plugins</a></div></li> <li><div class="site-nav-default-list-item site-nav-list-item-1" onclick="handleSiteNavClick(this)"><a href="/devGuide/development/migratingToTypeScript.html">Migrating to TypeScript</a></div></li> <li><div class="site-nav-default-list-item site-nav-list-item-1" onclick="handleSiteNavClick(this)"><a href="/devGuide/development/migratingNodeJs.html">Migrating Node.js</a></div></li></ul></li> <li><div class="site-nav-default-list-item site-nav-list-item-0" onclick="handleSiteNavClick(this)">Design 
+
+<div class="site-nav-dropdown-btn-container"><i class="site-nav-dropdown-btn-icon site-nav-rotate-icon" onclick="handleSiteNavClick(this.parentNode.parentNode, false); event.stopPropagation();"><span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span></i></div></div><ul class="site-nav-dropdown-container site-nav-dropdown-container-open site-nav-list"><li><div class="site-nav-default-list-item site-nav-list-item-1" onclick="handleSiteNavClick(this)"><a href="/devGuide/design/projectStructure.html">Project Structure</a></div></li> <li><div class="site-nav-default-list-item site-nav-list-item-1" onclick="handleSiteNavClick(this)"><a href="/devGuide/design/architecture.html">Architecture</a></div></li> <li><div class="site-nav-default-list-item site-nav-list-item-1" onclick="handleSiteNavClick(this)"><a href="/devGuide/design/vueIntegration.html">Vue Integration</a></div></li> <li><div class="site-nav-default-list-item site-nav-list-item-1" onclick="handleSiteNavClick(this)"><a href="/devGuide/design/serverSideRendering.html">Server Side Rendering</a></div></li></ul></li> <li><div class="site-nav-default-list-item site-nav-list-item-0" onclick="handleSiteNavClick(this)">GitHub Actions
+
+<div class="site-nav-dropdown-btn-container"><i class="site-nav-dropdown-btn-icon" onclick="handleSiteNavClick(this.parentNode.parentNode, false); event.stopPropagation();"><span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span></i></div></div><ul class="site-nav-dropdown-container site-nav-list"><li><div class="site-nav-default-list-item site-nav-list-item-1" onclick="handleSiteNavClick(this)"><a href="/devGuide/githubActions/overview.html">Overview</a></div></li> <li><div class="site-nav-default-list-item site-nav-list-item-1" onclick="handleSiteNavClick(this)"><a href="/devGuide/githubActions/markbindAction.html">markbind-action</a></div></li> <li><div class="site-nav-default-list-item site-nav-list-item-1" onclick="handleSiteNavClick(this)"><a href="/devGuide/githubActions/markbindReusableWorkflows.html">markbind-reusable-workflows</a></div></li> <li><div class="site-nav-default-list-item site-nav-list-item-1" onclick="handleSiteNavClick(this)"><a href="/devGuide/githubActions/workflowSecurity.html">Workflow Security</a></div></li></ul></li> <li><div class="site-nav-default-list-item site-nav-list-item-0" onclick="handleSiteNavClick(this)"><a href="/devGuide/projectManagement.html">Project management</a></div></li> <li><div class="site-nav-default-list-item site-nav-list-item-0" onclick="handleSiteNavClick(this)">Appendices 
+
+<div class="site-nav-dropdown-btn-container"><i class="site-nav-dropdown-btn-icon site-nav-rotate-icon" onclick="handleSiteNavClick(this.parentNode.parentNode, false); event.stopPropagation();"><span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span></i></div></div><ul class="site-nav-dropdown-container site-nav-dropdown-container-open site-nav-list"><li><div class="site-nav-default-list-item site-nav-list-item-1" onclick="handleSiteNavClick(this)"><a href="/devGuide/styleGuides.html">Style guides</a></div></li></ul></li><!--]--><!--v-if--></ul><!--]--></div></div><!--]--><!--v-if--></nav> <div id="content-wrapper"><div data-v-9ff38b52><nav aria-label="breadcrumb" class="breadcrumb-divider" data-v-9ff38b52><ol class="breadcrumb" data-v-9ff38b52><li class="notlink breadcrumb-marker" data-v-9ff38b52> ››   </li><!--[--><!--]--></ol></nav></div> <p><span id="title" class="d-none">Workflow</span></p> <h1 id="workflow">Workflow<a class="fa fa-anchor" href="#workflow" onclick="event.stopPropagation()"></a></h1> <div class="lead"><p>Our workflow is mostly based on the guidelines given at se-education.org/guides. This page points to the relevant parts of those guides and provide additional details specific to MarkBind.</p></div> <p><strong>To submit a PR</strong>, follow <a href="https://se-education.org/guides/guidelines/PRs.html">this guide</a>, but note the following:</p> <ul><li>You can start by looking through <a href="https://github.com/MarkBind/markbind/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22+sort%3Acomments-desc">these issues</a> marked <span href class="badge" style="color:white;background-color:#7057FF;">good first issue</span>. Don&#39;t do more than one of them though.</li> <li>As we squash the commits when merging a PR, there is <mark>no need to follow a strict commit organization or write elaborate commit messages for each commit</mark>.</li> <li>You can refer to the <a href="/devGuide/design/projectStructure.html"><em>Design</em></a> page to learn about the design and implementation of MarkBind.</li></ul> <p>The sections below has more information about various stages of submitting a PR.</p> <h2 id="writing-code">Writing code<a class="fa fa-anchor" href="#writing-code" onclick="event.stopPropagation()"></a></h2> <h4 id="general-tips">General tips<a class="fa fa-anchor" href="#general-tips" onclick="event.stopPropagation()"></a></h4> <ul><li><p>Use JavaScript ES6 features if possible for better performance, e.g. Promise instead of callback.</p></li> <li><p>Do note <a href="/devGuide/styleGuides.html">our style guides</a>.</p></li> <li><p>Do set up your IDE debugger! We provide several sample configurations for <span class="trigger-click" tabindex="0"><span><!--[-->WebStorm<!--]--></span></span> and <span class="trigger-click" tabindex="0"><span><!--[-->VS Code<!--]--></span></span>.</p> <!--[--><!-- NavBar has z-index of 1000, hence the z-index here should exceed that --><!-- SSR property is required for the snapshot tests to work --><!----><!--]--> <!--[--><!-- NavBar has z-index of 1000, hence the z-index here should exceed that --><!-- SSR property is required for the snapshot tests to work --><!----><!--]--></li></ul> <h4 id="keeping-your-fork-up-to-date">Keeping your fork up to date<a class="fa fa-anchor" href="#keeping-your-fork-up-to-date" onclick="event.stopPropagation()"></a></h4> <p>When new PRs are merged into the <code class="hljs inline no-lang">master</code> branch, your <code class="hljs inline no-lang">master</code> branch will be out of sync with the main repository. One way to update your branches to branch from the latest <code class="hljs inline no-lang">master</code> is as follows:</p> <ol><li><p>Go to your fork on GitHub and click &#39;Sync fork&#39; to update your remote <code class="hljs inline no-lang">master</code> branch
+<a href="https://docs.github.com/assets/cb-75616/mw-1440/images/help/repository/sync-fork-dropdown.webp" target="_self"><img src="https://docs.github.com/assets/cb-75616/mw-1440/images/help/repository/sync-fork-dropdown.webp" alt class="img-fluid" width="700"></a></p></li> <li><p>Checkout and sync your local <code class="hljs inline no-lang">master</code> (the name of your local branch that tracks the remote <code class="hljs inline no-lang">master</code>) branch with <code class="hljs inline no-lang">git checkout master &amp;&amp; git pull</code></p></li> <li><p>Checkout your feature branch and <a href="https://git-scm.com/book/en/v2/Git-Branching-Rebasing">rebase</a> the branch with <code class="hljs inline no-lang">git rebase master</code> or <a href="https://git-scm.com/docs/git-merge">merge</a> <code class="hljs inline no-lang">master</code> into the branch with <code class="hljs inline no-lang">git merge master</code></p></li> <li><p>Fix any merge conflicts (if applicable)</p></li></ol> <div class="alert box-container seamless" style="" data-v-78ad6a84><!--Icon and vertical divider for seamless header box--><!----><div class="header-and-body" data-v-78ad6a84><!-- Header wrapper, not rendered if there is no header attribute --><!----><!-- Body wrapper --><div class="box-body-wrapper" data-v-78ad6a84><!-- icon on the left, not shown if there is a header --><div class="icon-wrapper text-success" style="" data-v-78ad6a84><!--[--><i class="fas fa-lightbulb" data-v-78ad6a84></i><!--]--></div><!-- Icon -- content divider for seamless boxes without the header attribute --><div class="alert-success vertical-divider" aria-hidden="true" data-v-78ad6a84></div><!-- Content wrapper --><div class="contents" style="" data-v-78ad6a84><!--[--><p>You may want to use a tool like <a href="https://www.git-town.com/">GitTown</a> to speed up the process.</p><!--]--></div><!-- dismiss button on the right, not shown if there is a header --><!----></div></div></div> <h4 id="editing-backend-features">Editing backend features<a class="fa fa-anchor" href="#editing-backend-features" onclick="event.stopPropagation()"></a></h4> <p>Some of our backend code files in <code class="hljs inline no-lang">packages/core</code> are written in TypeScript, and you will need to compile those into JavaScript for local execution with our command-line module <code class="hljs inline no-lang">packages/cli</code>.</p> <p>You can run <code class="hljs inline no-lang">npm run build:backend</code> in the root directory to compile the files, but in some cases, it might be tedious to manually execute the command many times. We recommend you to either:</p> <ol><li><p>Run <code class="hljs inline no-lang">npm run dev</code> in the root directory. (<em>Recommended for TypeScript migration</em>)</p> <p>This command starts the compiler&#39;s file watcher which will rebuild the relavant files when file changes are detected.</p></li> <li><p>Configure your IDE to perform automatic compilation on file change/save. (<em>Recommended for general development</em>)</p> <p>Refer to your IDE&#39;s guides to set this up. For instance, here are the guides for <a href="https://www.jetbrains.com/help/webstorm/compiling-typescript-to-javascript.html#ts_compiler_compile_code_automatically">WebStorm</a> and <a href="https://code.visualstudio.com/docs/typescript/typescript-compiling#_step-2-run-the-typescript-build">Visual Studio Code</a>.</p></li></ol> <h4 id="editing-frontend-features">Editing frontend features<a class="fa fa-anchor" href="#editing-frontend-features" onclick="event.stopPropagation()"></a></h4> <p>We update the frontend <code class="hljs inline no-lang">markbind.min.js</code> and <code class="hljs inline no-lang">markbind.min.css</code> bundles during release only, and not in pull requests.</p> <p>Hence, if you need to view the latest frontend changes (relating to <code class="hljs inline no-lang">packages/core-web</code> or <code class="hljs inline no-lang">packages/vue-components</code>), you can either:</p> <ol><li>Run <code class="hljs inline no-lang">markbind serve -d</code> (with any other applicable options). (<strong>recommended</strong>)<br>
+This adds the necessary webpack middlewares to the development server to compile the above bundles,
+and enables live and hot reloading for frontend source files.</li> <li>Run <code class="hljs inline no-lang">npm run build:web</code> in the root directory, which builds the above bundles,
+then run your markbind-cli <a tags="environment--combined" href="/userGuide/cliCommands.html">command</a> of choice.</li></ol> <div class="alert box-container seamless d-flex" style="" data-v-78ad6a84><!--Icon and vertical divider for seamless header box--><div class="d-flex" data-v-78ad6a84><div class="icon-wrapper text-info" style="" data-v-78ad6a84><!--[--><i class="fas fa-info" data-v-78ad6a84></i><!--]--></div><div class="alert-info vertical-divider" aria-hidden="true" data-v-78ad6a84></div></div><div class="header-and-body" data-v-78ad6a84><!-- Header wrapper, not rendered if there is no header attribute --><div class="box-header-wrapper" data-v-78ad6a84><!-- icon on the left of the header --><!----><!-- header --><div class="box-header" data-v-78ad6a84><!--[--><p>Recommended Development Command</p><!--]--></div><!-- dismiss button to the right of the header --><!----></div><!-- Body wrapper --><div class="box-body-wrapper box-body-wrapper-with-heading" data-v-78ad6a84><!-- icon on the left, not shown if there is a header --><!----><!-- Icon -- content divider for seamless boxes without the header attribute --><!----><!-- Content wrapper --><div class="contents" style="" data-v-78ad6a84><!--[--> <h5 id="markbind-serve-d"><code class="hljs inline no-lang">markbind serve -d</code><a class="fa fa-anchor" href="#markbind-serve-d" onclick="event.stopPropagation()"></a></h5> <p><code class="hljs inline no-lang">markbind serve -d</code> adds the necessary webpack middlewares to the development server to compile the bundles for <code class="hljs inline no-lang">markbind-core-web</code> and <code class="hljs inline no-lang">markbind-vue-components</code>, and enables live and hot reloading for frontend source files.</p> <p>Note that the command is only applicable for local development, and does not work when you install MarkBind from npm, as it relies on developmental dependencies.</p><!--]--></div><!-- dismiss button on the right, not shown if there is a header --><!----></div></div></div> <div id="workflow-testing"><h2 id="testing">Testing<a class="fa fa-anchor" href="#testing" onclick="event.stopPropagation()"></a></h2> <p>Our test script does the following:</p> <ol><li>Lints the code (<code class="hljs inline no-lang">.ts</code>, <code class="hljs inline no-lang">.js</code>, <code class="hljs inline no-lang">.vue</code>) and stylesheets (<code class="hljs inline no-lang">.css</code>) for any style errors using <a href="https://eslint.org/">ESLint</a> and <a href="https://stylelint.io/">StyleLint</a>.</li> <li>Runs unit tests for all packages with <a href="https://jestjs.io/">Jest</a>.</li> <li>Builds the test sites whose directory names are listed in <code class="hljs inline no-lang">packages/cli/test/functional/testSites.js</code>.</li> <li>For each test site, compares the HTML files generated with the HTML files in its <code class="hljs inline no-lang">expected</code> directory.</li></ol> <p>To run the test script, use: <code class="hljs inline no-lang">npm run test</code></p> <div class="alert box-container seamless" style="" data-v-78ad6a84><!--Icon and vertical divider for seamless header box--><!----><div class="header-and-body" data-v-78ad6a84><!-- Header wrapper, not rendered if there is no header attribute --><!----><!-- Body wrapper --><div class="box-body-wrapper" data-v-78ad6a84><!-- icon on the left, not shown if there is a header --><div class="icon-wrapper text-success" style="" data-v-78ad6a84><!--[--><i class="fas fa-lightbulb" data-v-78ad6a84></i><!--]--></div><!-- Icon -- content divider for seamless boxes without the header attribute --><div class="alert-success vertical-divider" aria-hidden="true" data-v-78ad6a84></div><!-- Content wrapper --><div class="contents" style="" data-v-78ad6a84><!--[--><p>If you only want to run tests for one of the packages (<code class="hljs inline no-lang">packages/*</code>), simply switch into the appropriate directory and use <code class="hljs inline no-lang">npm run test</code> as well!</p><!--]--></div><!-- dismiss button on the right, not shown if there is a header --><!----></div></div></div> <div class="alert box-container seamless" style="" data-v-78ad6a84><!--Icon and vertical divider for seamless header box--><!----><div class="header-and-body" data-v-78ad6a84><!-- Header wrapper, not rendered if there is no header attribute --><!----><!-- Body wrapper --><div class="box-body-wrapper" data-v-78ad6a84><!-- icon on the left, not shown if there is a header --><div class="icon-wrapper text-info" style="" data-v-78ad6a84><!--[--><i class="fas fa-info" data-v-78ad6a84></i><!--]--></div><!-- Icon -- content divider for seamless boxes without the header attribute --><div class="alert-info vertical-divider" aria-hidden="true" data-v-78ad6a84></div><!-- Content wrapper --><div class="contents" style="" data-v-78ad6a84><!--[--><p>When running <code class="hljs inline no-lang">npm run test</code>, you may see errors in the console. Some of these errors are <strong>expected</strong> as part of the test cases.
+Check the test logs for messages like:</p> <pre><code class="hljs"><span>info: The following 2 errors are expected to be thrown during the test run:
+</span><span>info: 1: No such segment &#39;#doesNotExist&#39; in file
+</span><span>info: 2: Cyclic reference detected.
+</span></code><div class="function-btn-container"><button onclick="toggleCodeBlockWrap(this)" class="function-btn d-print-none wrap-button">
+    <div class="tooltip-container">
+    <span class="tooltiptext">Wrap Text</span>
+    <div class="function-btn-body">
+    
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="18" height="18" viewBox="0 0 18 18" version="1.1">
+    <g id="surface1">
+      <path id="path17964" d="M 1.109375 0 L 1.109375 2.5351562 L 2.0410156 2.5351562 L
+      2.0410156 0.93164062 L 4.8203125 0.93164062 L 4.8203125 9.3222656 L 3.4746094
+      9.3222656 L 3.4746094 10.144531 L 8.8027344 10.144531 L 8.8027344 9.3222656 L
+      7.4492188 9.3222656 L 7.4492188 0.93164062 L 10.25 0.93164062 L 10.25 2.5351562 L
+      11.166016 2.5351562 L 11.166016 0 L 1.109375 0 z M 10.84375 5.1054688 L 10.84375
+      6.6074219 C 12.268027 6.6074219 13.40625 7.7456444 13.40625 9.1699219 C 13.40625
+      10.185673 12.827237 11.055036 11.978516 11.470703 L 11.978516 9.5175781 L 7.1386719
+      12.3125 L 11.978516 15.105469 L 11.978516 13.072266 C 13.66701 12.577757 14.910156
+      11.012746 14.910156 9.1699219 C 14.910156 6.9333638 13.080308 5.1054688 10.84375
+      5.1054688 z "></path>
+    </g>
+</svg>
+
+    </div>
+    </div>
+    </button><button onclick="copyCodeBlock(this)" class="function-btn d-print-none">
+    <div class="tooltip-container">
+    <span class="tooltiptext">Copy</span>
+    <div class="function-btn-body">
+    
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="18" height="18" viewBox="0 0 18 18" version="1.1">
+    <g id="surface1">
+      <path d="M 11.273438 0 L 2.546875 0 C 1.746094 0 1.089844 0.613281 1.089844
+      1.363281 L 1.089844 10.910156 L 2.546875 10.910156 L 2.546875 1.363281 L 11.273438
+      1.363281 Z M 13.453125 2.726562 L 5.453125 2.726562 C 4.65625 2.726562 4 3.339844 4
+      4.089844 L 4 13.636719 C 4 14.386719 4.65625 15 5.453125 15 L 13.453125 15 C 14.253906
+      15 14.910156 14.386719 14.910156 13.636719 L 14.910156 4.089844 C 14.910156 3.339844
+      14.253906 2.726562 13.453125 2.726562 Z M 13.453125 13.636719 L 5.453125 13.636719 L
+      5.453125 4.089844 L 13.453125 4.089844 Z M 13.453125 13.636719 "></path>
+    </g>
+</svg>
+
+    </div>
+    </div>
+    </button></div></pre><p>If an error is listed there, it&#39;s safe to ignore.</p><!--]--></div><!-- dismiss button on the right, not shown if there is a header --><!----></div></div></div> <h4 id="updating-and-writing-tests">Updating and writing tests<a class="fa fa-anchor" href="#updating-and-writing-tests" onclick="event.stopPropagation()"></a></h4> <div class="alert box-container seamless" style="" data-v-78ad6a84><!--Icon and vertical divider for seamless header box--><!----><div class="header-and-body" data-v-78ad6a84><!-- Header wrapper, not rendered if there is no header attribute --><!----><!-- Body wrapper --><div class="box-body-wrapper" data-v-78ad6a84><!-- icon on the left, not shown if there is a header --><div class="icon-wrapper text-warning" style="" data-v-78ad6a84><!--[--><i class="fas fa-exclamation" data-v-78ad6a84></i><!--]--></div><!-- Icon -- content divider for seamless boxes without the header attribute --><div class="alert-warning vertical-divider" aria-hidden="true" data-v-78ad6a84></div><!-- Content wrapper --><div class="contents" style="" data-v-78ad6a84><!--[--><p>If you&#39;re adding tests that are expected to log new errors to the console, make sure to <strong>update the corresponding info messages</strong> in the test logs.
+This ensures that expected errors are properly listed and avoids confusion during test runs.</p><!--]--></div><!-- dismiss button on the right, not shown if there is a header --><!----></div></div></div> <h5 id="updating-unit-tests">Updating unit tests<a class="fa fa-anchor" href="#updating-unit-tests" onclick="event.stopPropagation()"></a></h5> <p>Our unit tests perform fast, stable, and comprehensive checks on important behaviors of our classes and functions. Some existing tests can be found in the <code class="hljs inline no-lang">packages/cli/test/unit</code> and <code class="hljs inline no-lang">packages/core/test/unit</code> directory. Where appropriate, unit tests should be added/modified to account for any new/changed functionality.</p> <h5 id="updating-functional-tests">Updating functional tests<a class="fa fa-anchor" href="#updating-functional-tests" onclick="event.stopPropagation()"></a></h5> <p>Whether you are adding a new feature, updating existing features or fixing bugs, make sure to update the <strong>source</strong> test files (test sites, snapshots) to reflect the changes.</p> <p>After which, you can update the <span class="trigger" data-mb-component-type="tooltip" tabindex="0"><!----><!-- do not delete this comment, it is for the stray space issue (#2419)
+ --><!----></span> with: <code class="hljs inline no-lang">npm run updatetest</code></p> <div class="alert box-container seamless" style="" data-v-78ad6a84><!--Icon and vertical divider for seamless header box--><!----><div class="header-and-body" data-v-78ad6a84><!-- Header wrapper, not rendered if there is no header attribute --><!----><!-- Body wrapper --><div class="box-body-wrapper" data-v-78ad6a84><!-- icon on the left, not shown if there is a header --><div class="icon-wrapper text-warning" style="" data-v-78ad6a84><!--[--><i class="fas fa-exclamation" data-v-78ad6a84></i><!--]--></div><!-- Icon -- content divider for seamless boxes without the header attribute --><div class="alert-warning vertical-divider" aria-hidden="true" data-v-78ad6a84></div><!-- Content wrapper --><div class="contents" style="" data-v-78ad6a84><!--[--><p>You should always check that the generated output is correct before committing any changes to the test sites.</p> <p>Note that some binary files such as images (e.g. <code class="hljs inline no-lang">inline-output.png</code>) or fonts (e.g. <code class="hljs inline no-lang">material-icons-outlined.woff</code>) could show up
+as uncommitted changes due to the way they are generated. If you are not directly modifying those files in your PR, you should <strong>discard those changes</strong> and <strong>do not commit</strong> them.</p><!--]--></div><!-- dismiss button on the right, not shown if there is a header --><!----></div></div></div> <div class="alert box-container seamless d-flex" style="" data-v-78ad6a84><!--Icon and vertical divider for seamless header box--><div class="d-flex" data-v-78ad6a84><div class="icon-wrapper text-success" style="" data-v-78ad6a84><!--[--><i class="fas fa-lightbulb" data-v-78ad6a84></i><!--]--></div><div class="alert-success vertical-divider" aria-hidden="true" data-v-78ad6a84></div></div><div class="header-and-body" data-v-78ad6a84><!-- Header wrapper, not rendered if there is no header attribute --><div class="box-header-wrapper" data-v-78ad6a84><!-- icon on the left of the header --><!----><!-- header --><div class="box-header" data-v-78ad6a84><!--[--><p>Here are the steps to solve merge conflicts in expected test files:</p><!--]--></div><!-- dismiss button to the right of the header --><!----></div><!-- Body wrapper --><div class="box-body-wrapper box-body-wrapper-with-heading" data-v-78ad6a84><!-- icon on the left, not shown if there is a header --><!----><!-- Icon -- content divider for seamless boxes without the header attribute --><!----><!-- Content wrapper --><div class="contents" style="" data-v-78ad6a84><!--[--> <ol><li>Ensure that your fork is synced with the upstream repository.</li> <li>Ensure that the master branch of your local repository is in sync with the master branch of your fork.
+Pull from the fork into your local repository as needed.</li> <li>Checkout from your master branch to your PR branch.
+<ul><li><code class="hljs inline no-lang">git checkout [BRANCH NAME]</code></li></ul></li> <li>Merge your master branch into your PR branch.
+<ul><li><code class="hljs inline no-lang">git merge master</code></li></ul></li> <li>Accept all changes to any merge conflicts in the generated <strong>expected</strong> test files.
+<ul><li>It does not matter which changes are accepted, as they will be overridden in the following step.</li></ul></li> <li>Once your master branch has been successfully merged into your PR branch, run <code class="hljs inline no-lang">npm run updatetest</code> to generate the latest test files.</li></ol><!--]--></div><!-- dismiss button on the right, not shown if there is a header --><!----></div></div></div> <h5 id="adding-test-site-content">Adding test site content<a class="fa fa-anchor" href="#adding-test-site-content" onclick="event.stopPropagation()"></a></h5> <p>When adding new features, you should also add new site content into an existing test site or create a new test site to demonstrate the new feature. This is to ensure that your feature can be tested by building that test site.</p> <p>To add a page to an existing test site, for this example, to <code class="hljs inline no-lang">test_site</code>:</p> <ol><li><p>Add a new test page, e.g., <code class="hljs inline no-lang">newTestPage.md</code>, containing a demonstration of the new feature.</p></li> <li><p>Open the <code class="hljs inline no-lang">site.json</code> corresponding to the test site, i.e. <code class="hljs inline no-lang">packages/cli/test/functional/test_site/site.json</code></p></li> <li><p>To include the new page, i.e. <code class="hljs inline no-lang">newTestPage.md</code>, add it to the <code class="hljs inline no-lang">pages</code> array.</p> <div class="code-block"><div class="code-block-heading"><span>site.json</span></div><div class="code-block-content"><pre><code heading="site.json" class="hljs"><span>&quot;pages&quot;: [
+</span><span>  {
+</span><span>    &quot;src&quot;: &quot;index.md&quot;,
+</span><span>    &quot;title&quot;: &quot;Hello World&quot;,
+</span><span>    &quot;frontmatter&quot;: {
+</span><span>      &quot;frontmatterOverrideProperty&quot;: &quot;Overridden by frontmatter override&quot;,
+</span><span>      &quot;globalAndFrontmatterOverrideProperty&quot;:  &quot;Overridden by frontmatter override&quot;
+</span><span>    }
+</span><span>  },
+</span><span>  ...
+</span><span>  {
+</span><span>    &quot;src&quot;: &quot;testLayouts.md&quot;,
+</span><span>    &quot;title&quot;: &quot;Hello World&quot;
+</span><span>  },
+</span><span>  {,
+</span><span>    <span class="highlighted">&quot;src&quot;: &quot;newTestPage.md&quot;,</span>
+</span><span>    <span class="highlighted">&quot;title&quot;: [some title you see fit]</span>
+</span><span>  },
+</span><span>  ...
+</span></code><div class="function-btn-container"><button onclick="toggleCodeBlockWrap(this)" class="function-btn d-print-none wrap-button">
+    <div class="tooltip-container">
+    <span class="tooltiptext">Wrap Text</span>
+    <div class="function-btn-body">
+    
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="18" height="18" viewBox="0 0 18 18" version="1.1">
+    <g id="surface1">
+      <path id="path17964" d="M 1.109375 0 L 1.109375 2.5351562 L 2.0410156 2.5351562 L
+      2.0410156 0.93164062 L 4.8203125 0.93164062 L 4.8203125 9.3222656 L 3.4746094
+      9.3222656 L 3.4746094 10.144531 L 8.8027344 10.144531 L 8.8027344 9.3222656 L
+      7.4492188 9.3222656 L 7.4492188 0.93164062 L 10.25 0.93164062 L 10.25 2.5351562 L
+      11.166016 2.5351562 L 11.166016 0 L 1.109375 0 z M 10.84375 5.1054688 L 10.84375
+      6.6074219 C 12.268027 6.6074219 13.40625 7.7456444 13.40625 9.1699219 C 13.40625
+      10.185673 12.827237 11.055036 11.978516 11.470703 L 11.978516 9.5175781 L 7.1386719
+      12.3125 L 11.978516 15.105469 L 11.978516 13.072266 C 13.66701 12.577757 14.910156
+      11.012746 14.910156 9.1699219 C 14.910156 6.9333638 13.080308 5.1054688 10.84375
+      5.1054688 z "></path>
+    </g>
+</svg>
+
+    </div>
+    </div>
+    </button><button onclick="copyCodeBlock(this)" class="function-btn d-print-none">
+    <div class="tooltip-container">
+    <span class="tooltiptext">Copy</span>
+    <div class="function-btn-body">
+    
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="18" height="18" viewBox="0 0 18 18" version="1.1">
+    <g id="surface1">
+      <path d="M 11.273438 0 L 2.546875 0 C 1.746094 0 1.089844 0.613281 1.089844
+      1.363281 L 1.089844 10.910156 L 2.546875 10.910156 L 2.546875 1.363281 L 11.273438
+      1.363281 Z M 13.453125 2.726562 L 5.453125 2.726562 C 4.65625 2.726562 4 3.339844 4
+      4.089844 L 4 13.636719 C 4 14.386719 4.65625 15 5.453125 15 L 13.453125 15 C 14.253906
+      15 14.910156 14.386719 14.910156 13.636719 L 14.910156 4.089844 C 14.910156 3.339844
+      14.253906 2.726562 13.453125 2.726562 Z M 13.453125 13.636719 L 5.453125 13.636719 L
+      5.453125 4.089844 L 13.453125 4.089844 Z M 13.453125 13.636719 "></path>
+    </g>
+</svg>
+
+    </div>
+    </div>
+    </button></div></pre></div></div></li> <li><p>Update the tests using <code class="hljs inline no-lang">npm run updatetest</code>.</p></li></ol> <div class="alert box-container seamless" style="" data-v-78ad6a84><!--Icon and vertical divider for seamless header box--><!----><div class="header-and-body" data-v-78ad6a84><!-- Header wrapper, not rendered if there is no header attribute --><!----><!-- Body wrapper --><div class="box-body-wrapper" data-v-78ad6a84><!-- icon on the left, not shown if there is a header --><div class="icon-wrapper text-info" style="" data-v-78ad6a84><!--[--><i class="fas fa-info" data-v-78ad6a84></i><!--]--></div><!-- Icon -- content divider for seamless boxes without the header attribute --><div class="alert-info vertical-divider" aria-hidden="true" data-v-78ad6a84></div><!-- Content wrapper --><div class="contents" style="" data-v-78ad6a84><!--[--><p>If creating a new test site instead, the directory name of the new test site should be added to <code class="hljs inline no-lang">packages/cli/test/functional/testSites.js</code> file.</p><!--]--></div><!-- dismiss button on the right, not shown if there is a header --><!----></div></div></div> <div class="alert box-container seamless" style="" data-v-78ad6a84><!--Icon and vertical divider for seamless header box--><!----><div class="header-and-body" data-v-78ad6a84><!-- Header wrapper, not rendered if there is no header attribute --><!----><!-- Body wrapper --><div class="box-body-wrapper" data-v-78ad6a84><!-- icon on the left, not shown if there is a header --><div class="icon-wrapper text-warning" style="" data-v-78ad6a84><!--[--><i class="fas fa-exclamation" data-v-78ad6a84></i><!--]--></div><!-- Icon -- content divider for seamless boxes without the header attribute --><div class="alert-warning vertical-divider" aria-hidden="true" data-v-78ad6a84></div><!-- Content wrapper --><div class="contents" style="" data-v-78ad6a84><!--[--><p>We do not commit the generated plantuml images in our <code class="hljs inline no-lang">test_site</code> to avoid non-related file changes after <code class="hljs inline no-lang">npm run updatetest</code>.
+The existing list of images to be ignored is maintained in <code class="hljs inline no-lang">packages/cli/test/functional/testSites.js</code> and <code class="hljs inline no-lang">.gitignore</code>.
+They should be updated accordingly if you are making changes to the plantuml content in our <code class="hljs inline no-lang">test_site</code>.</p><!--]--></div><!-- dismiss button on the right, not shown if there is a header --><!----></div></div></div> <h5 id="adding-snapshot-tests-for-components">Adding snapshot tests for components<a class="fa fa-anchor" href="#adding-snapshot-tests-for-components" onclick="event.stopPropagation()"></a></h5> <p>When making changes to the Vue components in <code class="hljs inline no-lang">packages/vue-components</code>, you should add new snapshot tests or adapt existing ones as appropriate.</p> <p>Once you&#39;re done, be sure to run the <code class="hljs inline no-lang">updatetest</code> script mentioned <a href="#updating-and-writing-tests">above</a>!</p></div> <h2 id="documenting">Documenting<a class="fa fa-anchor" href="#documenting" onclick="event.stopPropagation()"></a></h2> <h3 id="adding-intra-site-links-to-documentation">Adding Intra-Site Links to Documentation<a class="fa fa-anchor" href="#adding-intra-site-links-to-documentation" onclick="event.stopPropagation()"></a></h3> <p>In MarkBind, we use <a tags="environment--combined" href="/userGuide/tweakingThePageStructure.html#plugin-tags">tags</a> to differentiate between links in the developer guide referring to the user guide versus links in the user guide referring to the developer guide. Note that intra-site links within either guides need not have tags.</p> <p>MarkBind&#39;s documentation currently has 3 tags:</p> <ul><li><code class="hljs inline no-lang">environment--combined</code> for deploying the User Guide and Developer Guide together</li> <li><code class="hljs inline no-lang">environment--ug</code> for deployed User Guide</li> <li><code class="hljs inline no-lang">environment--dg</code> for deployed Developer Guide</li></ul> <p>To ensure that correct links are created, use tags with the links to selectively filter the correct link to be rendered for the right environment. When both the User Guide and the Developer Guide are deployed together, they have access to the files from each other, allowing the relative link to work. However, when they are deployed individually, this is not the case. Using absolute links creates the same effect as the relative link without having to have access to the files from the other guide.</p> <h4 id="developer-guide">Developer Guide<a class="fa fa-anchor" href="#developer-guide" onclick="event.stopPropagation()"></a></h4> <p><span class="dimmed">LINK:</span></p> <pre><code class="hljs markdown"><span>[<span class="hljs-string">Link Title</span>](<span class="hljs-link">/userGuide/newPage.html</span>)
+</span></code><div class="function-btn-container"><button onclick="toggleCodeBlockWrap(this)" class="function-btn d-print-none wrap-button">
+    <div class="tooltip-container">
+    <span class="tooltiptext">Wrap Text</span>
+    <div class="function-btn-body">
+    
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="18" height="18" viewBox="0 0 18 18" version="1.1">
+    <g id="surface1">
+      <path id="path17964" d="M 1.109375 0 L 1.109375 2.5351562 L 2.0410156 2.5351562 L
+      2.0410156 0.93164062 L 4.8203125 0.93164062 L 4.8203125 9.3222656 L 3.4746094
+      9.3222656 L 3.4746094 10.144531 L 8.8027344 10.144531 L 8.8027344 9.3222656 L
+      7.4492188 9.3222656 L 7.4492188 0.93164062 L 10.25 0.93164062 L 10.25 2.5351562 L
+      11.166016 2.5351562 L 11.166016 0 L 1.109375 0 z M 10.84375 5.1054688 L 10.84375
+      6.6074219 C 12.268027 6.6074219 13.40625 7.7456444 13.40625 9.1699219 C 13.40625
+      10.185673 12.827237 11.055036 11.978516 11.470703 L 11.978516 9.5175781 L 7.1386719
+      12.3125 L 11.978516 15.105469 L 11.978516 13.072266 C 13.66701 12.577757 14.910156
+      11.012746 14.910156 9.1699219 C 14.910156 6.9333638 13.080308 5.1054688 10.84375
+      5.1054688 z "></path>
+    </g>
+</svg>
+
+    </div>
+    </div>
+    </button><button onclick="copyCodeBlock(this)" class="function-btn d-print-none">
+    <div class="tooltip-container">
+    <span class="tooltiptext">Copy</span>
+    <div class="function-btn-body">
+    
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="18" height="18" viewBox="0 0 18 18" version="1.1">
+    <g id="surface1">
+      <path d="M 11.273438 0 L 2.546875 0 C 1.746094 0 1.089844 0.613281 1.089844
+      1.363281 L 1.089844 10.910156 L 2.546875 10.910156 L 2.546875 1.363281 L 11.273438
+      1.363281 Z M 13.453125 2.726562 L 5.453125 2.726562 C 4.65625 2.726562 4 3.339844 4
+      4.089844 L 4 13.636719 C 4 14.386719 4.65625 15 5.453125 15 L 13.453125 15 C 14.253906
+      15 14.910156 14.386719 14.910156 13.636719 L 14.910156 4.089844 C 14.910156 3.339844
+      14.253906 2.726562 13.453125 2.726562 Z M 13.453125 13.636719 L 5.453125 13.636719 L
+      5.453125 4.089844 L 13.453125 4.089844 Z M 13.453125 13.636719 "></path>
+    </g>
+</svg>
+
+    </div>
+    </div>
+    </button></div></pre><p><span class="dimmed">REPLACED WITH:</span></p> <pre><code class="hljs html"><span><span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">tags</span>=<span class="hljs-string">&quot;environment--combined&quot;</span> <span class="hljs-attr">href</span>=<span class="hljs-string">&quot;/userGuide/newPage.html&quot;</span>&gt;</span>Link Title<span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span>
+</span><span><span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">tags</span>=<span class="hljs-string">&quot;environment--dg&quot;</span> <span class="hljs-attr">href</span>=<span class="hljs-string">&quot;https://markbind.org/userGuide/newPage.html&quot;</span>&gt;</span>Link Title<span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span>
+</span></code><div class="function-btn-container"><button onclick="toggleCodeBlockWrap(this)" class="function-btn d-print-none wrap-button">
+    <div class="tooltip-container">
+    <span class="tooltiptext">Wrap Text</span>
+    <div class="function-btn-body">
+    
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="18" height="18" viewBox="0 0 18 18" version="1.1">
+    <g id="surface1">
+      <path id="path17964" d="M 1.109375 0 L 1.109375 2.5351562 L 2.0410156 2.5351562 L
+      2.0410156 0.93164062 L 4.8203125 0.93164062 L 4.8203125 9.3222656 L 3.4746094
+      9.3222656 L 3.4746094 10.144531 L 8.8027344 10.144531 L 8.8027344 9.3222656 L
+      7.4492188 9.3222656 L 7.4492188 0.93164062 L 10.25 0.93164062 L 10.25 2.5351562 L
+      11.166016 2.5351562 L 11.166016 0 L 1.109375 0 z M 10.84375 5.1054688 L 10.84375
+      6.6074219 C 12.268027 6.6074219 13.40625 7.7456444 13.40625 9.1699219 C 13.40625
+      10.185673 12.827237 11.055036 11.978516 11.470703 L 11.978516 9.5175781 L 7.1386719
+      12.3125 L 11.978516 15.105469 L 11.978516 13.072266 C 13.66701 12.577757 14.910156
+      11.012746 14.910156 9.1699219 C 14.910156 6.9333638 13.080308 5.1054688 10.84375
+      5.1054688 z "></path>
+    </g>
+</svg>
+
+    </div>
+    </div>
+    </button><button onclick="copyCodeBlock(this)" class="function-btn d-print-none">
+    <div class="tooltip-container">
+    <span class="tooltiptext">Copy</span>
+    <div class="function-btn-body">
+    
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="18" height="18" viewBox="0 0 18 18" version="1.1">
+    <g id="surface1">
+      <path d="M 11.273438 0 L 2.546875 0 C 1.746094 0 1.089844 0.613281 1.089844
+      1.363281 L 1.089844 10.910156 L 2.546875 10.910156 L 2.546875 1.363281 L 11.273438
+      1.363281 Z M 13.453125 2.726562 L 5.453125 2.726562 C 4.65625 2.726562 4 3.339844 4
+      4.089844 L 4 13.636719 C 4 14.386719 4.65625 15 5.453125 15 L 13.453125 15 C 14.253906
+      15 14.910156 14.386719 14.910156 13.636719 L 14.910156 4.089844 C 14.910156 3.339844
+      14.253906 2.726562 13.453125 2.726562 Z M 13.453125 13.636719 L 5.453125 13.636719 L
+      5.453125 4.089844 L 13.453125 4.089844 Z M 13.453125 13.636719 "></path>
+    </g>
+</svg>
+
+    </div>
+    </div>
+    </button></div></pre><h4 id="user-guide">User Guide<a class="fa fa-anchor" href="#user-guide" onclick="event.stopPropagation()"></a></h4> <p><span class="dimmed">LINK:</span></p> <pre><code class="hljs markdown"><span>[<span class="hljs-string">Link Title</span>](<span class="hljs-link">/devGuide/newPage.html</span>)
+</span></code><div class="function-btn-container"><button onclick="toggleCodeBlockWrap(this)" class="function-btn d-print-none wrap-button">
+    <div class="tooltip-container">
+    <span class="tooltiptext">Wrap Text</span>
+    <div class="function-btn-body">
+    
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="18" height="18" viewBox="0 0 18 18" version="1.1">
+    <g id="surface1">
+      <path id="path17964" d="M 1.109375 0 L 1.109375 2.5351562 L 2.0410156 2.5351562 L
+      2.0410156 0.93164062 L 4.8203125 0.93164062 L 4.8203125 9.3222656 L 3.4746094
+      9.3222656 L 3.4746094 10.144531 L 8.8027344 10.144531 L 8.8027344 9.3222656 L
+      7.4492188 9.3222656 L 7.4492188 0.93164062 L 10.25 0.93164062 L 10.25 2.5351562 L
+      11.166016 2.5351562 L 11.166016 0 L 1.109375 0 z M 10.84375 5.1054688 L 10.84375
+      6.6074219 C 12.268027 6.6074219 13.40625 7.7456444 13.40625 9.1699219 C 13.40625
+      10.185673 12.827237 11.055036 11.978516 11.470703 L 11.978516 9.5175781 L 7.1386719
+      12.3125 L 11.978516 15.105469 L 11.978516 13.072266 C 13.66701 12.577757 14.910156
+      11.012746 14.910156 9.1699219 C 14.910156 6.9333638 13.080308 5.1054688 10.84375
+      5.1054688 z "></path>
+    </g>
+</svg>
+
+    </div>
+    </div>
+    </button><button onclick="copyCodeBlock(this)" class="function-btn d-print-none">
+    <div class="tooltip-container">
+    <span class="tooltiptext">Copy</span>
+    <div class="function-btn-body">
+    
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="18" height="18" viewBox="0 0 18 18" version="1.1">
+    <g id="surface1">
+      <path d="M 11.273438 0 L 2.546875 0 C 1.746094 0 1.089844 0.613281 1.089844
+      1.363281 L 1.089844 10.910156 L 2.546875 10.910156 L 2.546875 1.363281 L 11.273438
+      1.363281 Z M 13.453125 2.726562 L 5.453125 2.726562 C 4.65625 2.726562 4 3.339844 4
+      4.089844 L 4 13.636719 C 4 14.386719 4.65625 15 5.453125 15 L 13.453125 15 C 14.253906
+      15 14.910156 14.386719 14.910156 13.636719 L 14.910156 4.089844 C 14.910156 3.339844
+      14.253906 2.726562 13.453125 2.726562 Z M 13.453125 13.636719 L 5.453125 13.636719 L
+      5.453125 4.089844 L 13.453125 4.089844 Z M 13.453125 13.636719 "></path>
+    </g>
+</svg>
+
+    </div>
+    </div>
+    </button></div></pre><p><span class="dimmed">REPLACED WITH:</span></p> <pre><code class="hljs html"><span><span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">tags</span>=<span class="hljs-string">&quot;environment--combined&quot;</span> <span class="hljs-attr">href</span>=<span class="hljs-string">&quot;/devGuide/newPage.html&quot;</span>&gt;</span>Link Title<span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span>
+</span><span><span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">tags</span>=<span class="hljs-string">&quot;environment--ug&quot;</span> <span class="hljs-attr">href</span>=<span class="hljs-string">&quot;https://markbind.org/devdocs/devGuide/newPage.html&quot;</span>&gt;</span>Link Title<span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span>
+</span></code><div class="function-btn-container"><button onclick="toggleCodeBlockWrap(this)" class="function-btn d-print-none wrap-button">
+    <div class="tooltip-container">
+    <span class="tooltiptext">Wrap Text</span>
+    <div class="function-btn-body">
+    
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="18" height="18" viewBox="0 0 18 18" version="1.1">
+    <g id="surface1">
+      <path id="path17964" d="M 1.109375 0 L 1.109375 2.5351562 L 2.0410156 2.5351562 L
+      2.0410156 0.93164062 L 4.8203125 0.93164062 L 4.8203125 9.3222656 L 3.4746094
+      9.3222656 L 3.4746094 10.144531 L 8.8027344 10.144531 L 8.8027344 9.3222656 L
+      7.4492188 9.3222656 L 7.4492188 0.93164062 L 10.25 0.93164062 L 10.25 2.5351562 L
+      11.166016 2.5351562 L 11.166016 0 L 1.109375 0 z M 10.84375 5.1054688 L 10.84375
+      6.6074219 C 12.268027 6.6074219 13.40625 7.7456444 13.40625 9.1699219 C 13.40625
+      10.185673 12.827237 11.055036 11.978516 11.470703 L 11.978516 9.5175781 L 7.1386719
+      12.3125 L 11.978516 15.105469 L 11.978516 13.072266 C 13.66701 12.577757 14.910156
+      11.012746 14.910156 9.1699219 C 14.910156 6.9333638 13.080308 5.1054688 10.84375
+      5.1054688 z "></path>
+    </g>
+</svg>
+
+    </div>
+    </div>
+    </button><button onclick="copyCodeBlock(this)" class="function-btn d-print-none">
+    <div class="tooltip-container">
+    <span class="tooltiptext">Copy</span>
+    <div class="function-btn-body">
+    
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="18" height="18" viewBox="0 0 18 18" version="1.1">
+    <g id="surface1">
+      <path d="M 11.273438 0 L 2.546875 0 C 1.746094 0 1.089844 0.613281 1.089844
+      1.363281 L 1.089844 10.910156 L 2.546875 10.910156 L 2.546875 1.363281 L 11.273438
+      1.363281 Z M 13.453125 2.726562 L 5.453125 2.726562 C 4.65625 2.726562 4 3.339844 4
+      4.089844 L 4 13.636719 C 4 14.386719 4.65625 15 5.453125 15 L 13.453125 15 C 14.253906
+      15 14.910156 14.386719 14.910156 13.636719 L 14.910156 4.089844 C 14.910156 3.339844
+      14.253906 2.726562 13.453125 2.726562 Z M 13.453125 13.636719 L 5.453125 13.636719 L
+      5.453125 4.089844 L 13.453125 4.089844 Z M 13.453125 13.636719 "></path>
+    </g>
+</svg>
+
+    </div>
+    </div>
+    </button></div></pre><h2 id="linting">Linting<a class="fa fa-anchor" href="#linting" onclick="event.stopPropagation()"></a></h2> <p>We follow <a href="/devGuide/styleGuides.html">our style guides</a>. Using a linter will help check and fix some of the code style errors in your code. It will save time for both you and your code reviewer. The linting tool we use is <a href="https://eslint.org/">ESLint</a> and <a href="https://stylelint.io/">StyleLint</a>. Here is a <a href="https://gist.github.com/nicholaschuayunzhi/bfe53dbb5f1a0f02d545d55956f9ab7e">gist</a> with an explanation of the ESLint rules chosen in markbind-cli.</p> <p>Before making a commit or pull request, you should lint your code by running the following commands from the root of your project:</p> <ul><li>To lint a specific file: <code class="hljs inline no-lang">eslint path/to/specificfile.js</code></li> <li>To lint all files: <code class="hljs inline no-lang">npm run lint</code></li></ul> <p>It is also possible to auto-fix some (not all) style errors, using <code class="hljs inline no-lang">npm run lintfix</code>.</p> <div class="alert box-container seamless" style="" data-v-78ad6a84><!--Icon and vertical divider for seamless header box--><!----><div class="header-and-body" data-v-78ad6a84><!-- Header wrapper, not rendered if there is no header attribute --><!----><!-- Body wrapper --><div class="box-body-wrapper" data-v-78ad6a84><!-- icon on the left, not shown if there is a header --><div class="icon-wrapper text-success" style="" data-v-78ad6a84><!--[--><i class="fas fa-lightbulb" data-v-78ad6a84></i><!--]--></div><!-- Icon -- content divider for seamless boxes without the header attribute --><div class="alert-success vertical-divider" aria-hidden="true" data-v-78ad6a84></div><!-- Content wrapper --><div class="contents" style="" data-v-78ad6a84><!--[--><p>ESLint has <a href="https://eslint.org/docs/user-guide/integrations">integrations with popular editors</a>. They offer features such as &quot;fix errors on save&quot;, which will make development smoother.</p><!--]--></div><!-- dismiss button on the right, not shown if there is a header --><!----></div></div></div> <h2 id="git-hooks">Git hooks<a class="fa fa-anchor" href="#git-hooks" onclick="event.stopPropagation()"></a></h2> <p>We have three git hooks in our project. We use <a href="https://pre-commit.com/">pre-commit</a> to manage our git hooks.<br>
+The pre-commit scripts are located in <code class="hljs inline no-lang">./pre-commit/pre-commit-scripts</code> and the config is found in <code class="hljs inline no-lang">./pre-commit-config.yaml</code>.</p> <p>To skip running the pre-commit hook or pre-push hook, you can use the --no-verify flag (e.g. git push --no-verify origin fork_branch).</p> <ul><li><code class="hljs inline no-lang">post-checkout</code>: When you checkout to another branch, this hook will run clean and build the backend.</li> <li><code class="hljs inline no-lang">pre-commit</code>: This hook will run clean, build the backend, and run lintfix on all the files.</li> <li><code class="hljs inline no-lang">pre-push</code>: This hook will run clean, build the backend, and run all the test cases.</li></ul> <h2 id="dependency-management">Dependency management<a class="fa fa-anchor" href="#dependency-management" onclick="event.stopPropagation()"></a></h2> <p>As mentioned in the <a href="/devGuide/development/settingUp.html#setting-up-the-dev-environment">setting up</a> page, MarkBind uses <a href="https://github.com/lerna/lerna">lerna</a> to manage the dependencies of its <a href="/devGuide/design/projectStructure.html">various packages</a>.</p> <h3 id="to-add-a-dependency">To add a dependency<a class="fa fa-anchor" href="#to-add-a-dependency" onclick="event.stopPropagation()"></a></h3> <p>Add your dependency into the appropriate <code class="hljs inline no-lang">package.json</code> file inside <code class="hljs inline no-lang">packages/*</code>. If this is a development dependency to be used across all packages (e.g. ESLint), add it the the root <code class="hljs inline no-lang">package.json</code>.</p> <p>Then, simply rerun the <code class="hljs inline no-lang">npm run setup</code> command to update the <code class="hljs inline no-lang">package-lock.json</code> files.</p> <h3 id="to-delete-a-dependency">To delete a dependency<a class="fa fa-anchor" href="#to-delete-a-dependency" onclick="event.stopPropagation()"></a></h3> <p>The safest way is to first remove the particular dependency entry from the <code class="hljs inline no-lang">package.json</code> file of the respective directory. Then, run <code class="hljs inline no-lang">npm run setup</code> in the root directory to clean up the local dependencies and update the <code class="hljs inline no-lang">package-lock.json</code> file.</p> <h3 id="to-update-a-dependency">To update a dependency<a class="fa fa-anchor" href="#to-update-a-dependency" onclick="event.stopPropagation()"></a></h3> <p>First, follow the instruction to <a href="#to-delete-a-dependency">delete the dependency</a>. Then, follow the instruction to <a href="#to-add-a-dependency">add the latest dependency</a> back. Also, when updating dependencies, ensure that it is updated in <em>all</em> packages using that dependency.</p> <div class="alert box-container alert-warning" style="" data-v-78ad6a84><!--Icon and vertical divider for seamless header box--><!----><div class="header-and-body" data-v-78ad6a84><!-- Header wrapper, not rendered if there is no header attribute --><!----><!-- Body wrapper --><div class="box-body-wrapper" data-v-78ad6a84><!-- icon on the left, not shown if there is a header --><div class="icon-wrapper" style="" data-v-78ad6a84><!--[--><i class="fas fa-exclamation" data-v-78ad6a84></i><!--]--></div><!-- Icon -- content divider for seamless boxes without the header attribute --><!----><!-- Content wrapper --><div class="contents" style="" data-v-78ad6a84><!--[--><p>Dependency updates are not trivial, and can be the source of subtle bugs. You should always check the respective dependency changelogs before doing so!</p><!--]--></div><!-- dismiss button on the right, not shown if there is a header --><!----></div></div></div> <h3 id="points-for-consideration">Points for consideration<a class="fa fa-anchor" href="#points-for-consideration" onclick="event.stopPropagation()"></a></h3> <p>There are a few ways to incorporate external packages into MarkBind, each with its pros and cons. The following table shows some of the common trade-offs:</p> <div class="table-responsive"><table class="markbind-table table table-bordered table-striped"><thead><tr><th style="text-align:left;">Approach</th> <th style="text-align:left;">Pros</th> <th style="text-align:left;">Cons</th></tr></thead> <tbody><tr><td style="text-align:left;">Installing</td> <td style="text-align:left;"><ul><li>Ease of upgrade</li><li>Traceable in <code class="hljs inline no-lang">package.json</code></li></ul></td> <td style="text-align:left;"><ul><li>May not satisfy custom behavior</li><li>Become vulnerable if the source repo is no longer actively maintained</li></ul></td></tr> <tr><td style="text-align:left;">Forking</td> <td style="text-align:left;"><ul><li>Relatively easy to upgrade</li><li>Leverage upstream testing procedures</li><li>Benefit others who share the same use cases</li></ul></td> <td style="text-align:left;"><ul><li>May become out-of-sync with the latest version</li><li>Difficult to maintain it externally in the long run</li></ul></td></tr> <tr><td style="text-align:left;">Patching</td> <td style="text-align:left;"><ul><li>Quick - no need to maintain / publish more npm packages or setup release procedures etc</li><li>Ensure the changes propagate to other dependencies</li><li>Enjoy the benefits of monorepo</li></ul></td> <td style="text-align:left;"><ul><li>Difficult to upgrade</li></ul></td></tr></tbody></table></div><p>As the choice is highly dependent on context and details of the implementation, below are some additional questions to ask before proceeding:</p> <ul><li>Is the package actively maintained?</li> <li>How big is the package?</li> <li>How invasive are the proposed changes?</li> <li>Are there existing APIs/plugin system from the package (to modify default behaviors)?</li></ul> <div class="alert box-container seamless" style="" data-v-78ad6a84><!--Icon and vertical divider for seamless header box--><!----><div class="header-and-body" data-v-78ad6a84><!-- Header wrapper, not rendered if there is no header attribute --><!----><!-- Body wrapper --><div class="box-body-wrapper" data-v-78ad6a84><!-- icon on the left, not shown if there is a header --><div class="icon-wrapper text-success" style="" data-v-78ad6a84><!--[--><i class="fas fa-lightbulb" data-v-78ad6a84></i><!--]--></div><!-- Icon -- content divider for seamless boxes without the header attribute --><div class="alert-success vertical-divider" aria-hidden="true" data-v-78ad6a84></div><!-- Content wrapper --><div class="contents" style="" data-v-78ad6a84><!--[--><p>Find out more about the key external libraries used in MarkBind from the <a href="/devGuide/design/projectStructure.html">project structure</a> section. Also, the rationales behind most existing patches are documented in their respective files, read them (and their respective PRs/issues) for more context!</p><!--]--></div><!-- dismiss button on the right, not shown if there is a header --><!----></div></div></div> <h3 id="updating-plantuml">Updating PlantUML<a class="fa fa-anchor" href="#updating-plantuml" onclick="event.stopPropagation()"></a></h3> <p>PlantUML is a third-party library used by MarkBind to create UML diagrams. MarkBind runs the PlantUML JAR file found in <code class="hljs inline no-lang">packages/core/src/plugins/default</code> when building the site to generate the diagrams.</p> <p>To update PlantUML to a newer version:</p> <ol><li>Download the JAR file from <a href="https://plantuml.com/download">PlantUML&#39;s website</a>.</li> <li>Rename the file to <code class="hljs inline no-lang">plantuml.jar</code> (if required), and replace the existing JAR file located in <code class="hljs inline no-lang">packages/core/src/plugins/default</code>.</li> <li>Check the HTML pages that contain PlantUML diagrams, i.e. <code class="hljs inline no-lang">/userGuide/components/imagesAndDiagrams.html</code>.</li></ol> <h3 id="updating-bootstrap-and-bootswatch">Updating Bootstrap and Bootswatch<a class="fa fa-anchor" href="#updating-bootstrap-and-bootswatch" onclick="event.stopPropagation()"></a></h3> <p>As Bootswatch is built on Bootstrap, ensure that the versions of both are in sync to avoid unexpected differences in styling behavior between default and other themes. Both are currently using version 5.1.3.</p> <h2 id="using-skills">Using Skills<a class="fa fa-anchor" href="#using-skills" onclick="event.stopPropagation()"></a></h2> <p>As a developer, you may use AI in your workflow to perform tasks. If a specific task is done repeatedly, you may leverage Skills to improve AI output and save time.</p> <p>Skills are invoked whenever an agent detects a task to be relevant to one, though sometimes manual pointing may be necessary.</p> <p>MarkBind houses several skills that you may find useful. See the <a href="/devGuide/development/aiUse.html#ai-skills">Skills</a> page for a full list and more information.</p> <div class="clearfix"><p><span class="float-start"><a class="btn" href="/devGuide/development/settingUp.html"><span><span aria-hidden="true" class="far fa-arrow-alt-circle-left"></span> <span>Setting up</span></span></a></span></p> <p><span class="float-end"><a class="btn" href="/devGuide/development/aiUse.html"><span><span>AI use</span> <span aria-hidden="true" class="far fa-arrow-alt-circle-right"></span></span></a></span></p></div> <br></div> <nav id="page-nav" data-v-6b1b63d2><!--[--><div class="nav-component slim-scroll"><nav id="mb-page-nav" class="nav nav-pills flex-column my-0 small no-flex-wrap" data-v-6b1b63d2><!--[--><a class="nav-link py-1" href="#workflow">Workflow‎</a> <nav class="nav nav-pills flex-column my-0 nested no-flex-wrap"><a class="nav-link py-1" href="#writing-code">Writing code‎</a> <nav class="nav nav-pills flex-column my-0 nested no-flex-wrap"><a class="nav-link py-1" href="#general-tips">General tips‎</a> <a class="nav-link py-1" href="#keeping-your-fork-up-to-date">Keeping your fork up to date‎</a> <a class="nav-link py-1" href="#editing-backend-features">Editing backend features‎</a> <a class="nav-link py-1" href="#editing-frontend-features">Editing frontend features‎</a> <nav class="nav nav-pills flex-column my-0 nested no-flex-wrap"><a class="nav-link py-1" href="#markbind-serve-d">markbind serve -d‎</a></nav></nav> <a class="nav-link py-1" href="#testing">Testing‎</a> <nav class="nav nav-pills flex-column my-0 nested no-flex-wrap"><a class="nav-link py-1" href="#updating-and-writing-tests">Updating and writing tests‎</a> <nav class="nav nav-pills flex-column my-0 nested no-flex-wrap"><a class="nav-link py-1" href="#updating-unit-tests">Updating unit tests‎</a> <a class="nav-link py-1" href="#updating-functional-tests">Updating functional tests‎</a> <a class="nav-link py-1" href="#adding-test-site-content">Adding test site content‎</a> <a class="nav-link py-1" href="#adding-snapshot-tests-for-components">Adding snapshot tests for components‎</a></nav></nav> <a class="nav-link py-1" href="#documenting">Documenting‎</a> <nav class="nav nav-pills flex-column my-0 nested no-flex-wrap"><a class="nav-link py-1" href="#adding-intra-site-links-to-documentation">Adding Intra-Site Links to Documentation‎</a> <nav class="nav nav-pills flex-column my-0 nested no-flex-wrap"><a class="nav-link py-1" href="#developer-guide">Developer Guide‎</a> <a class="nav-link py-1" href="#user-guide">User Guide‎</a></nav></nav> <a class="nav-link py-1" href="#linting">Linting‎</a> <a class="nav-link py-1" href="#git-hooks">Git hooks‎</a> <a class="nav-link py-1" href="#dependency-management">Dependency management‎</a> <nav class="nav nav-pills flex-column my-0 nested no-flex-wrap"><a class="nav-link py-1" href="#to-add-a-dependency">To add a dependency‎</a> <a class="nav-link py-1" href="#to-delete-a-dependency">To delete a dependency‎</a> <a class="nav-link py-1" href="#to-update-a-dependency">To update a dependency‎</a> <a class="nav-link py-1" href="#points-for-consideration">Points for consideration‎</a> <a class="nav-link py-1" href="#updating-plantuml">Updating PlantUML‎</a> <a class="nav-link py-1" href="#updating-bootstrap-and-bootswatch">Updating Bootstrap and Bootswatch‎</a></nav> <a class="nav-link py-1" href="#using-skills">Using Skills‎</a></nav><!--]--><!--v-if--></nav></div><!--]--><!--v-if--></nav> <div class="scroll-top-button fa-lg d-print-none" style="display:none;bottom:2%;right:2%;position:fixed;" aria-hidden="true"><!--[--><i class="fas fa-arrow-circle-up"></i><!--]--></div></div> <div><footer><div class="text-center"><small>[Generated by <a href="https://markbind.org/">MarkBind 6.3.1</a> on Wed, 18 Mar 2026, 21:53:25 GMT+8]</small><br> <small>This site is powered by <a href="https://www.netlify.com/">Netlify</a>.</small></div></footer></div><!--]--></div>
+</body><script src="/markbind/js/bootstrap-utility.min.js"></script>
+<script src="/markbind/js/polyfill.min.js"></script>
+<script src="/markbind/js/vue.global.prod.min.js"></script>
+<script src="/markbind/js/markbind.min.js"></script>
+<script src="workflow.page-vue-render.js"></script>
+<script>
+  document.body.setAttribute('data-code-theme', window.__MARKBIND_THEME__ || 'light');
+</script>
+<script>
+  MarkBind.setupWithSearch()
+</script>
+    <script>
+    function toggleCodeBlockWrap(element) {
+      const pre = element.parentElement.parentElement;
+      const tooltipText = element.querySelector(".tooltiptext");
+      const classList = pre.querySelector('code').classList; 
+      if (classList.contains('wrap')) {
+          classList.remove('wrap');
+          tooltipText.innerText  = `Wrap Text`;
+      } else {
+          classList.add('wrap')
+          tooltipText.innerText  = `Unwrap Text`;
+      }
+    }
+    </script>
+    
+    <script>
+        function submitForm(element) {
+            event.preventDefault();
+            const formData = new FormData(element);
+            const formProps = Object.fromEntries(formData);
+            const json = JSON.stringify(formProps);
+            const submitButton = element.querySelector('button[type="submit"]');
+            const submitButtonText = submitButton.innerText;
+            submitButton.innerText = 'Please wait...'
+            fetch('https://api.web3forms.com/submit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: json,
+            })
+            .then(async (response) => {
+                if (response.status == 200) {
+                    alert('Form submitted! Thank you for your response');
+                } else {
+                    alert('Error submitting form! Please try again later.');
+                }
+            })
+            .catch(error => {
+                alert('Error submitting form! Please try again later.');
+            })
+            .finally(() => {
+                submitButton.innerText = submitButtonText;
+            })
+        }
+    </script>
+    <script>
+    function copyCodeBlock(element) {
+        const pre = element.parentElement.parentElement;
+        const codeElement = pre.querySelector('code');
+        const copyButtonBody = element.querySelector('.function-btn-body');
+        const tooltipText = element.querySelector(".tooltiptext");
+
+        // create dummy text element to select() the text field
+        const textElement = document.createElement('textarea');
+        textElement.value = codeElement.textContent;
+        document.body.appendChild(textElement);
+        textElement.select();
+
+        document.execCommand('copy');
+        document.body.removeChild(textElement);
+        copyButtonBody.innerHTML = `
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="18"
+    height="18"
+    viewBox="2 2 22 22"
+  >
+    <path d="M 19.28125 5.28125 L 9 15.5625 L 4.71875 11.28125 L 3.28125 12.71875 L 8.28125 17.71875 
+    L 9 18.40625 L 9.71875 17.71875 L 20.71875 6.71875 Z"></path>
+  </svg>
+`;
+        console.log("Running tooltip");
+        tooltipText.innerText  = `Copied!`;
+        setTimeout(() => {
+            copyButtonBody.innerHTML = `
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+  width="18" height="18" viewBox="0 0 18 18" version="1.1">
+    <g id="surface1">
+      <path d="M 11.273438 0 L 2.546875 0 C 1.746094 0 1.089844 0.613281 1.089844
+      1.363281 L 1.089844 10.910156 L 2.546875 10.910156 L 2.546875 1.363281 L 11.273438
+      1.363281 Z M 13.453125 2.726562 L 5.453125 2.726562 C 4.65625 2.726562 4 3.339844 4
+      4.089844 L 4 13.636719 C 4 14.386719 4.65625 15 5.453125 15 L 13.453125 15 C 14.253906
+      15 14.910156 14.386719 14.910156 13.636719 L 14.910156 4.089844 C 14.910156 3.339844
+      14.253906 2.726562 13.453125 2.726562 Z M 13.453125 13.636719 L 5.453125 13.636719 L
+      5.453125 4.089844 L 13.453125 4.089844 Z M 13.453125 13.636719 "/>
+    </g>
+</svg>
+`;
+            tooltipText.innerText  = `Copy`;
+        }, 3000);
+    }
+    </script>
+    <script src="/plugins/dataTable/datatables.min.js"></script>
+    
+  <script>
+    function getTableOptions(el) {
+      const options = {};
+      if ($(el).hasClass('sortable-table')) {
+        options.searching = false;
+        options.paging = false;
+        options.info = false;
+      } else if ($(el).hasClass('searchable-table')) {
+        options.ordering = false;
+        options.paging = false;
+        options.info = false;
+        options.dom = '<"row"<"col-sm-12"f>>' + '<"row"<"col-sm-12"t>>';
+      } else if ($(el).hasClass('sortable-searchable-table')) {
+        options.paging = false;
+        options.info = false;
+        options.dom = '<"row"<"col-sm-12"f>>' + '<"row"<"col-sm-12"t>>';
+      }
+      return options;
+    }
+
+    function initializeTables(tables) {
+      if (!tables || tables.length === 0) return;
+      tables.forEach(table => {
+        const options = getTableOptions(table);
+        $(table).DataTable(options);
+        $(table).addClass('dt-processed');
+      });
+    }
+
+    function setupTableObserver() {
+      const observer = new MutationObserver((mutations) => {
+        let newTables = [];
+        
+        mutations.forEach(mutation => {
+          if (mutation.addedNodes.length) {
+            mutation.addedNodes.forEach(node => {
+
+              if (node.nodeType === 1 && node.tagName === 'TABLE' && 
+                  !$(node).hasClass('dt-processed') &&
+                  ($(node).hasClass('sortable-table') || 
+                   $(node).hasClass('searchable-table') || 
+                   $(node).hasClass('sortable-searchable-table'))) {
+                newTables.push(node);
+              }
+              
+              if (node.nodeType === 1 && node.querySelectorAll) {
+                const tablesInNode = node.querySelectorAll(
+                'table.sortable-table:not(.dt-processed), ' +
+                'table.searchable-table:not(.dt-processed), ' +
+                'table.sortable-searchable-table:not(.dt-processed)');
+                if (tablesInNode.length) {
+                  newTables = [...newTables, ...tablesInNode];
+                }
+              }
+            });
+          }
+        });
+
+        if (newTables.length > 0) {
+          initializeTables(newTables);
+        }
+      });
+      
+      // Start observing the entire document for changes
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true
+      });
+      
+      return observer;
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      // Process any existing tables
+      const existingTables = document.querySelectorAll(
+        'table.sortable-table:not(.dt-processed), ' +
+        'table.searchable-table:not(.dt-processed), ' +
+        'table.sortable-searchable-table:not(.dt-processed)'
+      );
+      if (existingTables.length > 0) {
+        initializeTables(existingTables);
+      }
+      
+      setupTableObserver();
+    });
+
+  </script>
+
+    <script type="module">
+    window.mermaidPromise = null;
+    
+    const loadMermaid = () => {
+      if (window.mermaidPromise === null) {
+        window.mermaidPromise = import('https://unpkg.com/mermaid@10/dist/mermaid.esm.min.mjs')
+          .then(({ default: mermaid }) => {
+            mermaid.initialize({
+              startOnLoad: false,
+            });
+            console.log('Mermaid loaded successfully');
+            return mermaid;
+          })
+          .catch((error) => {
+            console.error('Mermaid failed to load:', error);
+            window.mermaidPromise = false;
+            return null;
+          });
+      }
+      return window.mermaidPromise;
+    };
+
+    const renderMermaidDiagrams = (elements) => {
+      if (!elements || elements.length === 0) {
+        return Promise.resolve();
+      }
+
+      return loadMermaid().then(mermaid => {
+        if (!mermaid) return;
+        return mermaid.run({ nodes: Array.from(elements) })
+          .catch(err => console.error('Error rendering mermaid diagrams:', err));
+      });
+    };
+
+    const setupMermaidObserver = () => {
+      const observer = new MutationObserver((mutations) => {
+        let newMermaidElements = [];
+        
+        mutations.forEach(mutation => {
+          if (mutation.addedNodes.length) {
+            mutation.addedNodes.forEach(node => {
+              if (node.nodeType === 1 && node.classList && 
+                  node.classList.contains('mermaid')) {
+                newMermaidElements.push(node);
+              }
+              
+              if (node.nodeType === 1 && node.querySelectorAll) {
+                const mermaidInNode = node.querySelectorAll('.mermaid');
+                if (mermaidInNode.length) {
+                  newMermaidElements = [...newMermaidElements, ...mermaidInNode];
+                }
+              }
+            });
+          }
+        });
+        
+        if (newMermaidElements.length > 0) {
+          renderMermaidDiagrams(newMermaidElements);
+        }
+      });
+      
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true
+      });
+      
+      return observer;
+    };
+
+    // Initialize on DOM content loaded
+    document.addEventListener('DOMContentLoaded', () => {
+      const existingDiagrams = document.querySelectorAll('.mermaid');
+      if (existingDiagrams.length > 0) {
+        renderMermaidDiagrams(existingDiagrams);
+      }
+      
+      setupMermaidObserver();
+    });
+
+  </script>
+</html>
