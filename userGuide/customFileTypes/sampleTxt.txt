@@ -3,6 +3,6 @@ This file is served as a .txt file, sourced from a .md file.
 The content below demonstrates nunjucks variables usage for custom file types:
 
 
- {{ baseUrl }} : ""
- {{ timestamp }} : "Mon, 23 Mar 2026, 11:29:13 GMT+8"
+ {{ baseUrl }} : "/markbind"
+ {{ timestamp }} : "Mon, 23 Mar 2026, 11:31:08 GMT+8"
  {{ MarkBind }} : ”<a href='https://markbind.org/'>MarkBind 6.3.1</a>“
