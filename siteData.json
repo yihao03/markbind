@@ -17,6 +17,41 @@
       "headingKeywords": {}
     },
     {
+      "src": "devGuide/aiUse/index.md",
+      "title": "AI use",
+      "headings": {
+        "ai-use": "AI use",
+        "using-external-resources": "Using External Resources",
+        "setting-up-ai-use": "Setting Up AI Use",
+        "using-skills": "Using Skills",
+        "subagents": "Subagents"
+      },
+      "headingKeywords": {}
+    },
+    {
+      "src": "devGuide/aiUse/skills.md",
+      "title": "Skills",
+      "headings": {
+        "skills": "Skills",
+        "list-of-skills": "List of Skills",
+        "adding-new-skills": "Adding New Skills",
+        "useful-links": "Useful Links"
+      },
+      "headingKeywords": {}
+    },
+    {
+      "src": "devGuide/aiUse/subagents.md",
+      "title": "Subagents",
+      "headings": {
+        "subagents": "Subagents",
+        "overview": "Overview",
+        "available-subagents": "Available Subagents",
+        "using-subagents": "Using Subagents",
+        "useful-references": "Useful References"
+      },
+      "headingKeywords": {}
+    },
+    {
       "src": "devGuide/bootcamp/contributeToDocs.md",
       "title": "Contribute to Documentation",
       "headings": {
@@ -149,20 +184,6 @@
       "headingKeywords": {}
     },
     {
-      "src": "devGuide/development/aiUse.md",
-      "title": "AI use",
-      "headings": {
-        "ai-use": "AI use",
-        "ai-skills": "AI Skills",
-        "skills-directory": "Skills Directory",
-        "list-of-skills": "List of Skills",
-        "adding-new-skills": "Adding New Skills",
-        "using-skills": "Using Skills",
-        "useful-links": "Useful Links"
-      },
-      "headingKeywords": {}
-    },
-    {
       "src": "devGuide/development/migratingNodeJs.md",
       "title": "Migrating Node.js",
       "headings": {
@@ -234,7 +255,7 @@
         "points-for-consideration": "Points for consideration",
         "updating-plantuml": "Updating PlantUML",
         "updating-bootstrap-and-bootswatch": "Updating Bootstrap and Bootswatch",
-        "using-skills": "Using Skills"
+        "using-ai-tools-in-your-workflow": "Using AI Tools in Your Workflow"
       },
       "headingKeywords": {}
     },
@@ -612,6 +633,11 @@
         "search-bars": "Search Bars",
         "keywords": "Keywords",
         "including-or-excluding-headings": "Including or Excluding Headings",
+        "using-pagefind-beta": "Using Pagefind (Beta)",
+        "ignoring-individual-elements-from-pagefind-search": "Ignoring Individual Elements from Pagefind Search",
+        "using-pagefind-configuration": "Using Pagefind Configuration",
+        "excluding-content-from-search-index": "Excluding Content from Search Index",
+        "limiting-which-pages-are-searchable": "Limiting Which Pages Are Searchable",
         "using-external-search-services": "Using External Search Services"
       },
       "headingKeywords": {
