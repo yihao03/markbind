@@ -1,7 +1,7 @@
 {
     "title": "globalVariables",
     "description": "This file is served as a .json file, but is sourced from a .md file in the source code.",
-    "baseUrl": "",
-    "timestamp": "Mon, 30 Mar 2026, 20:49:44 GMT+8",
+    "baseUrl": "/markbind",
+    "timestamp": "Mon, 30 Mar 2026, 20:51:12 GMT+8",
     "MarkBind": "<a href='https://markbind.org/'>MarkBind 6.3.1</a>"
 }

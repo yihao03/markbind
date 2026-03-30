@@ -7,7 +7,7 @@
 <ul>
 <li>You can start by looking through <a href="https://github.com/MarkBind/markbind/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22+sort%3Acomments-desc">these issues</a> marked <span href class="badge" style="color:white; background-color: #7057FF;">good first issue</span>. Don't do more than one of them though.</li>
 <li>As we squash the commits when merging a PR, there is <mark>no need to follow a strict commit organization or write elaborate commit messages for each commit</mark>.</li>
-<li>You can refer to the <a href="/devGuide/design/projectStructure.html"><em>Design</em></a> page to learn about the design and implementation of MarkBind.</li></ul>
+<li>You can refer to the <a href="/markbind/devGuide/design/projectStructure.html"><em>Design</em></a> page to learn about the design and implementation of MarkBind.</li></ul>
 <p>The sections below has more information about various stages of submitting a PR.</p>
 <h2 id="writing-code">Writing code<a class="fa fa-anchor" href="#writing-code" onclick="event.stopPropagation()"></a></h2>
 <h4 id="general-tips">General tips<a class="fa fa-anchor" href="#general-tips" onclick="event.stopPropagation()"></a></h4>
@@ -15,7 +15,7 @@
 <li>
 <p>Use JavaScript ES6 features if possible for better performance, e.g. Promise instead of callback.</p></li>
 <li>
-<p>Do note <a href="/devGuide/styleGuides.html">our style guides</a>.</p></li>
+<p>Do note <a href="/markbind/devGuide/styleGuides.html">our style guides</a>.</p></li>
 <li>
 <p>Do set up your IDE debugger! We provide several sample configurations for <trigger trigger="click" for="webstorm-debug">WebStorm</trigger> and <trigger trigger="click" for="vs-code-debug">VS Code</trigger>.</p>
 <modal id="webstorm-debug" large><template #header>Debugging Configurations - WebStorm</template>
@@ -30,11 +30,11 @@
 <li>
 <p>the project-bundled <code class="hljs inline no-lang" v-pre>tsx</code> as a <a href="https://nodejs.org/en/learn/typescript/run">TypeScript runner</a></p>
 <p class="mb-3"></p>
-<p><a href="/images/debugger/WebStorm_1.png" target="_self"><img src="/images/debugger/WebStorm_1.png" alt class="img-fluid"></a></p></li></ul>
+<p><a href="/markbind/images/debugger/WebStorm_1.png" target="_self"><img src="/markbind/images/debugger/WebStorm_1.png" alt class="img-fluid"></a></p></li></ul>
 <p><strong>2. Debugging all tests</strong> in the <code class="hljs inline no-lang" v-pre>npm run test</code> script:</p>
-<p class="ms-4"><a href="/images/debugger/WebStorm_2.png" target="_self"><img src="/images/debugger/WebStorm_2.png" alt class="img-fluid"></a></p>
+<p class="ms-4"><a href="/markbind/images/debugger/WebStorm_2.png" target="_self"><img src="/markbind/images/debugger/WebStorm_2.png" alt class="img-fluid"></a></p>
 <p><strong>3. Debugging only the cli package's tests</strong>:</p>
-<p class="ms-4"><a href="/images/debugger/WebStorm_3.png" target="_self"><img src="/images/debugger/WebStorm_3.png" alt class="img-fluid"></a></p></modal>
+<p class="ms-4"><a href="/markbind/images/debugger/WebStorm_3.png" target="_self"><img src="/markbind/images/debugger/WebStorm_3.png" alt class="img-fluid"></a></p></modal>
 <modal id="vs-code-debug" large><template #header>Debugging Configurations - VS Code</template>
 <p>Refer <a href="https://code.visualstudio.com/docs/editor/debugging">here</a> for a general guide on adding and running debugging configurations in VS Code.</p>
 <p>In your <code class="hljs inline no-lang" v-pre>.vscode/launch.json</code> file, you may use these sample configurations as a baseline, and tweak them as you see fit.</p>
@@ -610,7 +610,7 @@ They should be updated accordingly if you are making changes to the plantuml con
     </div>
     </div>
     </button></div></pre><h2 id="linting">Linting<a class="fa fa-anchor" href="#linting" onclick="event.stopPropagation()"></a></h2>
-<p>We follow <a href="/devGuide/styleGuides.html">our style guides</a>. Using a linter will help check and fix some of the code style errors in your code. It will save time for both you and your code reviewer. The linting tool we use is <a href="https://eslint.org/">ESLint</a> and <a href="https://stylelint.io/">StyleLint</a>. Here is a <a href="https://gist.github.com/nicholaschuayunzhi/bfe53dbb5f1a0f02d545d55956f9ab7e">gist</a> with an explanation of the ESLint rules chosen in markbind-cli.</p>
+<p>We follow <a href="/markbind/devGuide/styleGuides.html">our style guides</a>. Using a linter will help check and fix some of the code style errors in your code. It will save time for both you and your code reviewer. The linting tool we use is <a href="https://eslint.org/">ESLint</a> and <a href="https://stylelint.io/">StyleLint</a>. Here is a <a href="https://gist.github.com/nicholaschuayunzhi/bfe53dbb5f1a0f02d545d55956f9ab7e">gist</a> with an explanation of the ESLint rules chosen in markbind-cli.</p>
 <p>Before making a commit or pull request, you should lint your code by running the following commands from the root of your project:</p>
 <ul>
 <li>To lint a specific file: <code class="hljs inline no-lang" v-pre>eslint path/to/specificfile.js</code></li>
@@ -627,7 +627,7 @@ The pre-commit scripts are located in <code class="hljs inline no-lang" v-pre>./
 <li><code class="hljs inline no-lang" v-pre>pre-commit</code>: This hook will run clean, build the backend, and run lintfix on all the files.</li>
 <li><code class="hljs inline no-lang" v-pre>pre-push</code>: This hook will run clean, build the backend, and run all the test cases.</li></ul>
 <h2 id="dependency-management">Dependency management<a class="fa fa-anchor" href="#dependency-management" onclick="event.stopPropagation()"></a></h2>
-<p>As mentioned in the <a href="/devGuide/development/settingUp.html#setting-up-the-dev-environment">setting up</a> page, MarkBind uses <a href="https://github.com/lerna/lerna">lerna</a> to manage the dependencies of its <a href="/devGuide/design/projectStructure.html">various packages</a>.</p>
+<p>As mentioned in the <a href="/markbind/devGuide/development/settingUp.html#setting-up-the-dev-environment">setting up</a> page, MarkBind uses <a href="https://github.com/lerna/lerna">lerna</a> to manage the dependencies of its <a href="/markbind/devGuide/design/projectStructure.html">various packages</a>.</p>
 <h3 id="to-add-a-dependency">To add a dependency<a class="fa fa-anchor" href="#to-add-a-dependency" onclick="event.stopPropagation()"></a></h3>
 <p>Add your dependency into the appropriate <code class="hljs inline no-lang" v-pre>package.json</code> file inside <code class="hljs inline no-lang" v-pre>packages/*</code>. If this is a development dependency to be used across all packages (e.g. ESLint), add it the the root <code class="hljs inline no-lang" v-pre>package.json</code>.</p>
 <p>Then, simply rerun the <code class="hljs inline no-lang" v-pre>npm run setup</code> command to update the <code class="hljs inline no-lang" v-pre>package-lock.json</code> files.</p>
@@ -662,7 +662,7 @@ The pre-commit scripts are located in <code class="hljs inline no-lang" v-pre>./
 <li>How invasive are the proposed changes?</li>
 <li>Are there existing APIs/plugin system from the package (to modify default behaviors)?</li></ul>
 <box type="tip" seamless>
-<p>Find out more about the key external libraries used in MarkBind from the <a href="/devGuide/design/projectStructure.html">project structure</a> section. Also, the rationales behind most existing patches are documented in their respective files, read them (and their respective PRs/issues) for more context!</p></box>
+<p>Find out more about the key external libraries used in MarkBind from the <a href="/markbind/devGuide/design/projectStructure.html">project structure</a> section. Also, the rationales behind most existing patches are documented in their respective files, read them (and their respective PRs/issues) for more context!</p></box>
 <h3 id="updating-plantuml">Updating PlantUML<a class="fa fa-anchor" href="#updating-plantuml" onclick="event.stopPropagation()"></a></h3>
 <p>PlantUML is a third-party library used by MarkBind to create UML diagrams. MarkBind runs the PlantUML JAR file found in <code class="hljs inline no-lang" v-pre>packages/core/src/plugins/default</code> when building the site to generate the diagrams.</p>
 <p>To update PlantUML to a newer version:</p>
@@ -674,8 +674,8 @@ The pre-commit scripts are located in <code class="hljs inline no-lang" v-pre>./
 <p>As Bootswatch is built on Bootstrap, ensure that the versions of both are in sync to avoid unexpected differences in styling behavior between default and other themes. Both are currently using version 5.1.3.</p>
 <h2 id="using-ai-tools-in-your-workflow">Using AI Tools in Your Workflow<a class="fa fa-anchor" href="#using-ai-tools-in-your-workflow" onclick="event.stopPropagation()"></a></h2>
 <p>As a developer, you may use AI in your workflow to perform tasks. If a specific task is done repeatedly, you may leverage Skills or Agents to improve AI output and save time.</p>
-<p>MarkBind houses several AI tools that you may find useful. See the <a href="/devGuide/aiUse/index.html">AI Use</a> page for a full list and more information.</p>
+<p>MarkBind houses several AI tools that you may find useful. See the <a href="/markbind/devGuide/aiUse/index.html">AI Use</a> page for a full list and more information.</p>
 <div class="clearfix">
-<p><span class="float-start"><a class="btn" href="/devGuide/development/settingUp.html"><span><span aria-hidden="true" class="far fa-arrow-alt-circle-left"></span> <span>Setting up</span></span></a></span></p>
-<p><span class="float-end"><a class="btn" href="/devGuide/development/writingComponents.html"><span><span>Writing Components</span> <span aria-hidden="true" class="far fa-arrow-alt-circle-right"></span></span></a></span></p></div>
+<p><span class="float-start"><a class="btn" href="/markbind/devGuide/development/settingUp.html"><span><span aria-hidden="true" class="far fa-arrow-alt-circle-left"></span> <span>Setting up</span></span></a></span></p>
+<p><span class="float-end"><a class="btn" href="/markbind/devGuide/development/writingComponents.html"><span><span>Writing Components</span> <span aria-hidden="true" class="far fa-arrow-alt-circle-right"></span></span></a></span></p></div>
 <br>
